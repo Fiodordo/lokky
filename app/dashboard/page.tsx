@@ -4,7 +4,6 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-export const dynamic = "force-dynamic";
 
 type Scan = {
   id: string;
