@@ -29,7 +29,7 @@ function checkSsl(domain: string): Promise<{ valid: boolean; expiresAt: string |
       }
       const expiresAt = new Date(cert.valid_to);
       const valid = expiresAt > new Date();
-      const issuer = cert.issuer?.O ?? null;
+      const issuer = Array.isArray(cert.issuer?.O) ? cert.issuer.O[0] : (cert.issuer?.O ?? null);
       resolve({ valid, expiresAt: expiresAt.toISOString(), issuer });
     });
     socket.setTimeout(10000, () => {
