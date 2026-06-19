@@ -2,11 +2,6 @@ import { NextRequest, NextResponse } from "next/server";
 import * as tls from "tls";
 import { createClient } from "@supabase/supabase-js";
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
-
 function extractDomain(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
@@ -52,7 +47,11 @@ export async function POST(request: NextRequest) {
 
     const result = await checkSsl(domain);
 
-    if (userId) {
+    if (userId && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
+      );
       await supabase.from("scans").insert({
         user_id: userId,
         domain,
