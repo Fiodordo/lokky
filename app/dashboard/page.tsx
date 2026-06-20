@@ -115,13 +115,13 @@ export default function Dashboard() {
 
         {/* Scanner */}
         <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Scanner ma boutique</h2>
-          <p className="text-sm text-gray-700">Vérifiez la sécurité complète de votre boutique en ligne.</p>
+          <h2 className="text-lg font-semibold text-gray-900">Scanner mon projet</h2>
+          <p className="text-sm text-gray-700">Vérifiez la sécurité complète de votre site ou application.</p>
           <input
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="monshop.fr"
+            placeholder="monprojet
             className="w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black text-gray-900"
           />
           <button

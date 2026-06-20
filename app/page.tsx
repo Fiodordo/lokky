@@ -19,30 +19,30 @@ export default function Home() {
       {/* Hero */}
       <section className="max-w-4xl mx-auto px-6 py-24 text-center">
         <div className="inline-block bg-green-100 text-green-700 text-xs font-medium px-3 py-1 rounded-full mb-6">
-          🔒 Sécurité e-commerce simplifiée
+          🔒 Sécurité simplifiée pour makers et créateurs de SaaS
         </div>
         <h1 className="text-5xl font-bold text-gray-900 leading-tight mb-6">
-          Votre boutique en ligne<br />est-elle vraiment sécurisée ?
+          Votre projet est-il<br />vraiment sécurisé ?
         </h1>
         <p className="text-xl text-gray-500 mb-10 max-w-2xl mx-auto">
-          Lokky scanne votre site e-commerce en quelques secondes et détecte les failles de sécurité avant qu'elles ne coûtent des clients et de l'argent.
+          Lokky scanne votre site ou application — qu'il soit codé à la main, en no-code, ou avec l'aide de l'IA — et détecte les failles de sécurité avant qu'elles ne deviennent un problème.
         </p>
         <Link href="/register" className="bg-black text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-gray-800 inline-block">
-          Scanner mon site gratuitement →
+          Scanner mon projet gratuitement →
         </Link>
-        <p className="text-sm text-gray-400 mt-4">Sans carte bancaire • Résultat en 5 secondes</p>
+        <p className="text-sm text-gray-400 mt-4">Sans carte bancaire • Résultat en quelques secondes</p>
       </section>
 
       {/* Problème */}
       <section className="bg-gray-50 py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">Ce que vous ne savez pas peut vous coûter cher</h2>
-          <p className="text-gray-500 mb-12">Les e-commerçants perdent en moyenne 3 200€ par incident de sécurité</p>
+          <h2 className="text-3xl font-bold mb-4">Construire vite, c'est bien. Sécuriser aussi.</h2>
+          <p className="text-gray-500 mb-12">Avec le vibe coding et le no-code, on lance vite — souvent trop vite pour penser à la sécurité</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { emoji: "😱", title: "SSL expiré", desc: "Vos clients voient un message d'alerte et quittent votre site immédiatement" },
-              { emoji: "🔓", title: "Données exposées", desc: "Les informations de vos clients peuvent être volées sans que vous le sachiez" },
-              { emoji: "📉", title: "Déréférencement Google", desc: "Google pénalise les sites non sécurisés et vous faites disparaître des résultats" },
+              { emoji: "🤖", title: "Code généré rapidement", desc: "L'IA va vite, mais ne pense pas toujours à la sécurité par défaut" },
+              { emoji: "🔓", title: "Données exposées", desc: "Une mauvaise configuration peut exposer les données de vos utilisateurs sans que vous le sachiez" },
+              { emoji: "📉", title: "Confiance perdue", desc: "Une faille découverte par un utilisateur peut couler la réputation de votre projet" },
             ].map((item) => (
               <div key={item.title} className="bg-white rounded-xl p-6 border text-left">
                 <div className="text-3xl mb-3">{item.emoji}</div>
@@ -58,13 +58,13 @@ export default function Home() {
       <section className="py-20">
         <div className="max-w-4xl mx-auto px-6 text-center">
           <h2 className="text-3xl font-bold mb-4">Tout ce dont vous avez besoin</h2>
-          <p className="text-gray-500 mb-12">Simple, rapide, pensé pour les non-techniques</p>
+          <p className="text-gray-500 mb-12">Simple, rapide, pensé pour les non-experts en sécurité</p>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-left">
             {[
-              { emoji: "🔍", title: "Scan SSL instantané", desc: "Vérifiez votre certificat SSL et sa date d'expiration en 5 secondes" },
-              { emoji: "📊", title: "Rapport clair", desc: "Des résultats en français, sans jargon technique" },
-              { emoji: "🔔", title: "Alertes automatiques", desc: "Recevez un email avant que votre certificat expire" },
-              { emoji: "📈", title: "Historique des scans", desc: "Suivez l'évolution de la sécurité de votre site dans le temps" },
+              { emoji: "🔍", title: "Scan complet instantané", desc: "SSL, headers de sécurité, cookies — tout vérifié en quelques secondes" },
+              { emoji: "📊", title: "Score clair A à F", desc: "Comprenez immédiatement où vous en êtes, sans jargon technique" },
+              { emoji: "🔔", title: "Alertes automatiques", desc: "Recevez un email avant que votre certificat SSL expire" },
+              { emoji: "📈", title: "Historique des scans", desc: "Suivez l'évolution de la sécurité de votre projet dans le temps" },
             ].map((item) => (
               <div key={item.title} className="flex gap-4 p-6 border rounded-xl">
                 <div className="text-2xl">{item.emoji}</div>
@@ -85,9 +85,9 @@ export default function Home() {
           <p className="text-gray-500 mb-12">Commencez gratuitement, évoluez selon vos besoins</p>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {[
-              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["1 site", "Scan manuel", "Rapport basique"] },
-              { name: "Business", price: "29€/mois", desc: "Pour les boutiques", features: ["5 sites", "Scan hebdomadaire", "Alertes email", "Historique complet"], highlight: true },
-              { name: "Agence", price: "99€/mois", desc: "Pour les pros", features: ["Sites illimités", "Scan quotidien", "Rapports PDF", "Support prioritaire"] },
+              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["1 projet", "Scan manuel", "Score de sécurité"] },
+              { name: "Builder", price: "29€/mois", desc: "Pour les makers actifs", features: ["5 projets", "Scan hebdomadaire", "Alertes email", "Historique complet"], highlight: true },
+              { name: "Agence", price: "99€/mois", desc: "Pour les pros", features: ["Projets illimités", "Scan quotidien", "Rapports exportables", "Support prioritaire"] },
             ].map((plan) => (
               <div key={plan.name} className={`rounded-xl p-6 border text-left ${plan.highlight ? "bg-black text-white border-black" : "bg-white"}`}>
                 <h3 className="font-bold text-lg mb-1">{plan.name}</h3>
@@ -112,17 +112,17 @@ export default function Home() {
       {/* CTA Final */}
       <section className="py-20">
         <div className="max-w-2xl mx-auto px-6 text-center">
-          <h2 className="text-3xl font-bold mb-4">Prêt à sécuriser votre boutique ?</h2>
-          <p className="text-gray-500 mb-8">Rejoignez les e-commerçants qui protègent leur business avec Lokky</p>
+          <h2 className="text-3xl font-bold mb-4">Prêt à sécuriser votre projet ?</h2>
+          <p className="text-gray-500 mb-8">Rejoignez les makers et créateurs de SaaS qui protègent leur travail avec Lokky</p>
           <Link href="/register" className="bg-black text-white px-8 py-4 rounded-xl text-lg font-medium hover:bg-gray-800 inline-block">
-            Scanner mon site gratuitement →
+            Scanner mon projet gratuitement →
           </Link>
         </div>
       </section>
 
       {/* Footer */}
       <footer className="border-t py-8 text-center text-sm text-gray-400">
-        © 2026 Lokky — Sécurité e-commerce simplifiée
+        © 2026 Lokky — Sécurité simplifiée pour makers et créateurs
       </footer>
     </div>
   );
