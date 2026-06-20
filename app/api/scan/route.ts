@@ -118,12 +118,13 @@ export async function POST(request: NextRequest) {
 
     const score = computeScore(sslResult.valid, httpsRedirect, headersResult.headers, headersResult.cookies);
 
+    let insertError = null;
     if (userId && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY) {
       const supabase = createClient(
         process.env.NEXT_PUBLIC_SUPABASE_URL,
         process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
       );
-      await supabase.from("scans").insert({
+      const { error } = await supabase.from("scans").insert({
         user_id: userId,
         domain,
         ssl_valid: sslResult.valid,
@@ -132,6 +133,7 @@ export async function POST(request: NextRequest) {
         security_headers: headersResult.headers,
         score,
       });
+      if (error) insertError = error.message;
     }
 
     return NextResponse.json({
@@ -143,6 +145,7 @@ export async function POST(request: NextRequest) {
       securityHeaders: headersResult.headers,
       cookies: headersResult.cookies,
       score,
+      insertError,
     });
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur scan";
