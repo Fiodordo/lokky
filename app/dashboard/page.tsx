@@ -4,13 +4,40 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { useRouter } from "next/navigation";
 
-
 type Scan = {
   id: string;
   domain: string;
   ssl_valid: boolean;
   expires_at: string | null;
+  https_redirect: boolean;
+  security_headers: Record<string, boolean>;
+  score: string;
   created_at: string;
+};
+
+type ScanResult = {
+  domain: string;
+  sslValid: boolean;
+  expiresAt: string | null;
+  httpsRedirect: boolean;
+  securityHeaders: Record<string, boolean>;
+  cookies: { secure: boolean; httpOnly: boolean; found: boolean };
+  score: string;
+};
+
+const headerLabels: Record<string, string> = {
+  "strict-transport-security": "Force HTTPS (HSTS)",
+  "x-content-type-options": "Protection contre le sniffing",
+  "x-frame-options": "Protection contre le clickjacking",
+  "content-security-policy": "Protection contre les scripts malveillants",
+};
+
+const scoreColors: Record<string, string> = {
+  A: "bg-green-100 text-green-700",
+  B: "bg-green-100 text-green-700",
+  C: "bg-yellow-100 text-yellow-700",
+  D: "bg-orange-100 text-orange-700",
+  F: "bg-red-100 text-red-700",
 };
 
 export default function Dashboard() {
@@ -19,7 +46,7 @@ export default function Dashboard() {
   const [userId, setUserId] = useState("");
   const [url, setUrl] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ domain: string; sslValid: boolean; expiresAt: string | null } | null>(null);
+  const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState("");
   const [scans, setScans] = useState<Scan[]>([]);
 
@@ -77,8 +104,8 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-gray-50">
       <header className="bg-white border-b px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-semibold">Dashboard</h1>
-        <button onClick={handleLogout} className="text-sm text-gray-900 hover:text-gray-900">
+        <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
+        <button onClick={handleLogout} className="text-sm text-gray-600 hover:text-gray-900">
           Déconnexion
         </button>
       </header>
@@ -88,38 +115,82 @@ export default function Dashboard() {
 
         {/* Scanner */}
         <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h2 className="text-lg font-semibold">Scanner ma boutique</h2>
-          <p className="text-sm text-gray-700">Vérifiez le certificat SSL de votre boutique.</p>
+          <h2 className="text-lg font-semibold text-gray-900">Scanner ma boutique</h2>
+          <p className="text-sm text-gray-700">Vérifiez la sécurité complète de votre boutique en ligne.</p>
           <input
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
             placeholder="monshop.fr"
-            className="w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black"
+            className="w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black text-gray-900"
           />
           <button
             onClick={handleScan}
             disabled={loading || !url}
             className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
           >
-            {loading ? "Scan en cours..." : "Lancer le scan"}
+            {loading ? "Scan en cours (10-15s)..." : "Lancer le scan"}
           </button>
 
           {error && <p className="text-red-500 text-sm">{error}</p>}
 
           {result && (
-            <div className="border rounded-lg p-4 space-y-2">
-              <p className="text-sm font-medium">{result.domain}</p>
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-900">Statut SSL</span>
-                <span className={`px-2 py-0.5 rounded-full text-xs font-medium ${result.sslValid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                  {result.sslValid ? "✓ Valide" : "✗ Problème"}
+            <div className="border rounded-lg p-4 space-y-4">
+              <div className="flex justify-between items-center">
+                <p className="text-sm font-medium text-gray-900">{result.domain}</p>
+                <span className={`px-3 py-1 rounded-full text-lg font-bold ${scoreColors[result.score]}`}>
+                  {result.score}
                 </span>
               </div>
-              {result.expiresAt && (
+
+              <div className="space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-gray-900">Expiration</span>
-                  <span>{new Date(result.expiresAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                  <span className="text-gray-700">Certificat SSL</span>
+                  <span className={result.sslValid ? "text-green-700" : "text-red-700"}>
+                    {result.sslValid ? "✓ Valide" : "✗ Problème"}
+                  </span>
+                </div>
+                {result.expiresAt && (
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Expiration SSL</span>
+                    <span className="text-gray-900">{new Date(result.expiresAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-sm">
+                  <span className="text-gray-700">Redirection HTTPS</span>
+                  <span className={result.httpsRedirect ? "text-green-700" : "text-red-700"}>
+                    {result.httpsRedirect ? "✓ Activée" : "✗ Manquante"}
+                  </span>
+                </div>
+              </div>
+
+              <div className="border-t pt-3 space-y-2">
+                <p className="text-xs font-medium text-gray-500 uppercase">Headers de sécurité</p>
+                {Object.entries(result.securityHeaders).map(([key, value]) => (
+                  <div key={key} className="flex justify-between text-sm">
+                    <span className="text-gray-700">{headerLabels[key] ?? key}</span>
+                    <span className={value ? "text-green-700" : "text-red-700"}>
+                      {value ? "✓" : "✗"}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {result.cookies.found && (
+                <div className="border-t pt-3 space-y-2">
+                  <p className="text-xs font-medium text-gray-500 uppercase">Cookies</p>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Cookie sécurisé (Secure)</span>
+                    <span className={result.cookies.secure ? "text-green-700" : "text-red-700"}>
+                      {result.cookies.secure ? "✓" : "✗"}
+                    </span>
+                  </div>
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-700">Protégé contre le vol (HttpOnly)</span>
+                    <span className={result.cookies.httpOnly ? "text-green-700" : "text-red-700"}>
+                      {result.cookies.httpOnly ? "✓" : "✗"}
+                    </span>
+                  </div>
                 </div>
               )}
             </div>
@@ -129,15 +200,15 @@ export default function Dashboard() {
         {/* Historique */}
         {scans.length > 0 && (
           <div className="bg-white rounded-xl border p-6 space-y-4">
-            <h2 className="text-lg font-semibold">Historique des scans</h2>
+            <h2 className="text-lg font-semibold text-gray-900">Historique des scans</h2>
             <div className="space-y-2">
               {scans.map((scan) => (
                 <div key={scan.id} className="flex justify-between items-center text-sm py-2 border-b last:border-0">
-                  <span className="font-medium">{scan.domain}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs ${scan.ssl_valid ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"}`}>
-                    {scan.ssl_valid ? "✓ Valide" : "✗ Problème"}
+                  <span className="font-medium text-gray-900">{scan.domain}</span>
+                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${scoreColors[scan.score] ?? "bg-gray-100 text-gray-700"}`}>
+                    {scan.score ?? "?"}
                   </span>
-                  <span className="text-gray-900">{new Date(scan.created_at).toLocaleDateString("fr-FR")}</span>
+                  <span className="text-gray-600">{new Date(scan.created_at).toLocaleDateString("fr-FR")}</span>
                 </div>
               ))}
             </div>
