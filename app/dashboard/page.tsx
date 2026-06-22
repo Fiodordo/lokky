@@ -121,7 +121,7 @@ export default function Dashboard() {
             type="text"
             value={url}
             onChange={(e) => setUrl(e.target.value)}
-            placeholder="monprojet
+            placeholder="monprojet.com"
             className="w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black text-gray-900"
           />
           <button
