@@ -2,219 +2,82 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 
-type Scan = {
-  id: string;
-  domain: string;
-  ssl_valid: boolean;
-  expires_at: string | null;
-  https_redirect: boolean;
-  security_headers: Record<string, boolean>;
-  score: string;
-  created_at: string;
-};
-
-type ScanResult = {
-  domain: string;
-  sslValid: boolean;
-  expiresAt: string | null;
-  httpsRedirect: boolean;
-  securityHeaders: Record<string, boolean>;
-  cookies: { secure: boolean; httpOnly: boolean; found: boolean };
-  score: string;
-};
-
-const headerLabels: Record<string, string> = {
-  "strict-transport-security": "Force HTTPS (HSTS)",
-  "x-content-type-options": "Protection contre le sniffing",
-  "x-frame-options": "Protection contre le clickjacking",
-  "content-security-policy": "Protection contre les scripts malveillants",
-};
-
-const scoreColors: Record<string, string> = {
-  A: "bg-green-100 text-green-700",
-  B: "bg-green-100 text-green-700",
-  C: "bg-yellow-100 text-yellow-700",
-  D: "bg-orange-100 text-orange-700",
-  F: "bg-red-100 text-red-700",
-};
-
-export default function Dashboard() {
-  const router = useRouter();
-  const [email, setEmail] = useState("");
+export default function DashboardHome() {
+  const [scansCount, setScansCount] = useState(0);
+  const [lastScan, setLastScan] = useState<string | null>(null);
   const [userId, setUserId] = useState("");
-  const [url, setUrl] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<ScanResult | null>(null);
-  const [error, setError] = useState("");
-  const [scans, setScans] = useState<Scan[]>([]);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        router.push("/login");
-      } else {
-        setEmail(data.user.email ?? "");
+      if (data.user) {
         setUserId(data.user.id);
-        loadScans(data.user.id);
+        loadStats(data.user.id);
       }
     });
-  }, [router]);
+  }, []);
 
-  async function loadScans(uid: string) {
+  async function loadStats(uid: string) {
     const { data } = await supabase
       .from("scans")
-      .select("*")
+      .select("domain, created_at, score")
       .eq("user_id", uid)
-      .order("created_at", { ascending: false })
-      .limit(5);
-    if (data) setScans(data);
-  }
+      .order("created_at", { ascending: false });
 
-  async function handleScan() {
-    setLoading(true);
-    setError("");
-    setResult(null);
-    try {
-      const res = await fetch("/api/scan", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url, userId }),
-      });
-      const data = await res.json();
-      if (data.error) {
-        setError(data.error);
-      } else {
-        setResult(data);
-        loadScans(userId);
-      }
-    } catch {
-      setError("Erreur lors du scan");
-    } finally {
-      setLoading(false);
+    if (data) {
+      setScansCount(data.length);
+      setLastScan(data[0]?.domain ?? null);
     }
   }
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
+  const cards = [
+    { label: "Scans effectués", value: scansCount, icon: "🔍", href: "/dashboard/history" },
+    { label: "Dernier scan", value: lastScan ?? "Aucun", icon: "📊", href: "/dashboard/scanner" },
+    { label: "Alertes actives", value: "SSL < 7j", icon: "🔔", href: "/dashboard/alerts" },
+    { label: "Mon plan", value: "Starter", icon: "⚡", href: "/dashboard/upgrade" },
+  ];
+
+  const quickActions = [
+    { label: "Scanner un projet", desc: "Analysez la sécurité de votre site", href: "/dashboard/scanner", icon: "🔍" },
+    { label: "Voir l'historique", desc: "Consultez vos anciens scans", href: "/dashboard/history", icon: "📊" },
+    { label: "Guides de correction", desc: "Apprenez à corriger les failles", href: "/dashboard/guides", icon: "📖" },
+    { label: "Upgrader mon plan", desc: "Débloquez plus de fonctionnalités", href: "/dashboard/upgrade", icon: "⚡" },
+  ];
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white border-b px-6 py-4 flex justify-between items-center">
-        <h1 className="text-xl font-semibold text-gray-900">Dashboard</h1>
-        <button onClick={handleLogout} className="text-sm text-gray-600 hover:text-gray-900">
-          Déconnexion
-        </button>
-      </header>
+    <div className="space-y-8">
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Vue d'ensemble</h1>
+        <p className="text-gray-500 mt-1">Bienvenue sur votre tableau de bord Lokky</p>
+      </div>
 
-      <main className="max-w-2xl mx-auto px-4 py-8 space-y-8">
-        <p className="text-gray-800">Connecté en tant que <span className="font-medium">{email}</span></p>
+      {/* Stats */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {cards.map((card) => (
+          <Link key={card.label} href={card.href} className="bg-white rounded-xl border p-4 hover:shadow-sm transition-shadow">
+            <div className="text-2xl mb-2">{card.icon}</div>
+            <p className="text-xs text-gray-500 mb-1">{card.label}</p>
+            <p className="text-lg font-bold text-gray-900 truncate">{card.value}</p>
+          </Link>
+        ))}
+      </div>
 
-        {/* Scanner */}
-        <div className="bg-white rounded-xl border p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Scanner mon projet</h2>
-          <p className="text-sm text-gray-700">Vérifiez la sécurité complète de votre site ou application.</p>
-          <input
-            type="text"
-            value={url}
-            onChange={(e) => setUrl(e.target.value)}
-            placeholder="monprojet.com"
-            className="w-full border rounded-lg px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-black text-gray-900"
-          />
-          <button
-            onClick={handleScan}
-            disabled={loading || !url}
-            className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-          >
-            {loading ? "Scan en cours (10-15s)..." : "Lancer le scan"}
-          </button>
-
-          {error && <p className="text-red-500 text-sm">{error}</p>}
-
-          {result && (
-            <div className="border rounded-lg p-4 space-y-4">
-              <div className="flex justify-between items-center">
-                <p className="text-sm font-medium text-gray-900">{result.domain}</p>
-                <span className={`px-3 py-1 rounded-full text-lg font-bold ${scoreColors[result.score]}`}>
-                  {result.score}
-                </span>
+      {/* Quick actions */}
+      <div>
+        <h2 className="text-lg font-semibold text-gray-900 mb-4">Actions rapides</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {quickActions.map((action) => (
+            <Link key={action.label} href={action.href} className="bg-white rounded-xl border p-5 flex gap-4 items-start hover:shadow-sm transition-shadow">
+              <span className="text-2xl">{action.icon}</span>
+              <div>
+                <p className="font-medium text-gray-900">{action.label}</p>
+                <p className="text-sm text-gray-500">{action.desc}</p>
               </div>
-
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700">Certificat SSL</span>
-                  <span className={result.sslValid ? "text-green-700" : "text-red-700"}>
-                    {result.sslValid ? "✓ Valide" : "✗ Problème"}
-                  </span>
-                </div>
-                {result.expiresAt && (
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Expiration SSL</span>
-                    <span className="text-gray-900">{new Date(result.expiresAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-700">Redirection HTTPS</span>
-                  <span className={result.httpsRedirect ? "text-green-700" : "text-red-700"}>
-                    {result.httpsRedirect ? "✓ Activée" : "✗ Manquante"}
-                  </span>
-                </div>
-              </div>
-
-              <div className="border-t pt-3 space-y-2">
-                <p className="text-xs font-medium text-gray-500 uppercase">Headers de sécurité</p>
-                {Object.entries(result.securityHeaders).map(([key, value]) => (
-                  <div key={key} className="flex justify-between text-sm">
-                    <span className="text-gray-700">{headerLabels[key] ?? key}</span>
-                    <span className={value ? "text-green-700" : "text-red-700"}>
-                      {value ? "✓" : "✗"}
-                    </span>
-                  </div>
-                ))}
-              </div>
-
-              {result.cookies.found && (
-                <div className="border-t pt-3 space-y-2">
-                  <p className="text-xs font-medium text-gray-500 uppercase">Cookies</p>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Cookie sécurisé (Secure)</span>
-                    <span className={result.cookies.secure ? "text-green-700" : "text-red-700"}>
-                      {result.cookies.secure ? "✓" : "✗"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between text-sm">
-                    <span className="text-gray-700">Protégé contre le vol (HttpOnly)</span>
-                    <span className={result.cookies.httpOnly ? "text-green-700" : "text-red-700"}>
-                      {result.cookies.httpOnly ? "✓" : "✗"}
-                    </span>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
+            </Link>
+          ))}
         </div>
-
-        {/* Historique */}
-        {scans.length > 0 && (
-          <div className="bg-white rounded-xl border p-6 space-y-4">
-            <h2 className="text-lg font-semibold text-gray-900">Historique des scans</h2>
-            <div className="space-y-2">
-              {scans.map((scan) => (
-                <div key={scan.id} className="flex justify-between items-center text-sm py-2 border-b last:border-0">
-                  <span className="font-medium text-gray-900">{scan.domain}</span>
-                  <span className={`px-2 py-0.5 rounded-full text-xs font-bold ${scoreColors[scan.score] ?? "bg-gray-100 text-gray-700"}`}>
-                    {scan.score ?? "?"}
-                  </span>
-                  <span className="text-gray-600">{new Date(scan.created_at).toLocaleDateString("fr-FR")}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-      </main>
+      </div>
     </div>
   );
 }
