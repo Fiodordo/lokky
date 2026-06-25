@@ -6,13 +6,13 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 const navItems = [
-  { href: "/dashboard", label: "Vue d'ensemble", icon: "🏠" },
-  { href: "/dashboard/scanner", label: "Scanner", icon: "🔍" },
-  { href: "/dashboard/history", label: "Historique", icon: "📊" },
-  { href: "/dashboard/alerts", label: "Alertes", icon: "🔔" },
-  { href: "/dashboard/guides", label: "Guides de correction", icon: "📖" },
-  { href: "/dashboard/upgrade", label: "Mon abonnement", icon: "⚡" },
-  { href: "/dashboard/settings", label: "Paramètres", icon: "⚙️" },
+  { href: "/dashboard", label: "Vue d'ensemble", icon: "ti-home" },
+  { href: "/dashboard/scanner", label: "Scanner", icon: "ti-search" },
+  { href: "/dashboard/history", label: "Historique", icon: "ti-chart-bar" },
+  { href: "/dashboard/alerts", label: "Alertes", icon: "ti-bell" },
+  { href: "/dashboard/guides", label: "Guides de correction", icon: "ti-book" },
+  { href: "/dashboard/upgrade", label: "Mon abonnement", icon: "ti-bolt" },
+  { href: "/dashboard/settings", label: "Paramètres", icon: "ti-settings" },
 ];
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
@@ -23,9 +23,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) {
-        router.push("/login");
-      } else {
+      if (!data.user) router.push("/login");
+      else {
         setEmail(data.user.email ?? "");
         setLoading(false);
       }
@@ -38,55 +37,44 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   }
 
   if (loading) return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-50">
-      <p className="text-gray-500 text-sm">Chargement...</p>
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1929" }}>
+      <p style={{ color: "#00d4aa", fontSize: "14px" }}>Chargement...</p>
     </div>
   );
 
   return (
-    <div className="min-h-screen flex bg-gray-50">
-      {/* Sidebar */}
-      <aside className="w-64 bg-white border-r flex flex-col fixed h-full">
-        {/* Logo */}
-        <div className="px-6 py-5 border-b">
-          <Link href="/dashboard" className="text-xl font-bold text-gray-900">Lokky</Link>
+    <div style={{ minHeight: "100vh", display: "flex", background: "#0d1f2d" }}>
+      <aside style={{ width: "220px", background: "#0a1929", borderRight: "0.5px solid #1a3a4a", display: "flex", flexDirection: "column", position: "fixed", height: "100vh" }}>
+        <div style={{ padding: "20px 16px", borderBottom: "0.5px solid #1a3a4a" }}>
+          <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+            <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
+            <span style={{ fontSize: "16px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
+          </Link>
         </div>
-
-        {/* Nav */}
-        <nav className="flex-1 px-3 py-4 space-y-1">
+        <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: "2px" }}>
           {navItems.map((item) => {
             const isActive = pathname === item.href;
             return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors ${
-                  isActive
-                    ? "bg-gray-900 text-white"
-                    : "text-gray-600 hover:bg-gray-100 hover:text-gray-900"
-                }`}
-              >
-                <span>{item.icon}</span>
+              <Link key={item.href} href={item.href} style={{
+                display: "flex", alignItems: "center", gap: "10px",
+                padding: "8px 12px", borderRadius: "6px",
+                fontSize: "13px", textDecoration: "none",
+                background: isActive ? "rgba(0,212,170,0.1)" : "transparent",
+                color: isActive ? "#00d4aa" : "#5a8a9f",
+                borderLeft: isActive ? "2px solid #00d4aa" : "2px solid transparent",
+              }}>
+                <i className={`ti ${item.icon}`} style={{ fontSize: "15px" }}></i>
                 {item.label}
               </Link>
             );
           })}
         </nav>
-
-        {/* User */}
-        <div className="px-4 py-4 border-t">
-          <p className="text-xs text-gray-500 truncate mb-2">{email}</p>
-          <button
-            onClick={handleLogout}
-            className="w-full text-left text-xs text-gray-500 hover:text-red-600 transition-colors"
-          >
-            → Déconnexion
-          </button>
+        <div style={{ padding: "16px", borderTop: "0.5px solid #1a3a4a" }}>
+          <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email}</p>
+          <button onClick={handleLogout} style={{ fontSize: "11px", color: "#5a8a9f", background: "none", border: "none", cursor: "pointer" }}>→ Déconnexion</button>
         </div>
       </aside>
-
-      {/* Main content */}
-      <main className="flex-1 ml-64 p-8">
+      <main style={{ flex: 1, marginLeft: "220px", padding: "32px", minHeight: "100vh", background: "#0d1f2d" }}>
         {children}
       </main>
     </div>

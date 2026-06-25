@@ -20,12 +20,10 @@ const headerLabels: Record<string, string> = {
   "content-security-policy": "Protection contre les scripts malveillants",
 };
 
-const scoreColors: Record<string, string> = {
-  A: "bg-green-100 text-green-700",
-  B: "bg-green-100 text-green-700",
-  C: "bg-yellow-100 text-yellow-700",
-  D: "bg-orange-100 text-orange-700",
-  F: "bg-red-100 text-red-700",
+const scoreColor = (s: string) => {
+  if (s === "A" || s === "B") return { bg: "rgba(0,212,170,0.1)", color: "#00d4aa", border: "rgba(0,212,170,0.3)" };
+  if (s === "C") return { bg: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "rgba(245,158,11,0.3)" };
+  return { bg: "rgba(239,68,68,0.1)", color: "#ef4444", border: "rgba(239,68,68,0.3)" };
 };
 
 export default function ScannerPage() {
@@ -61,87 +59,85 @@ export default function ScannerPage() {
     }
   }
 
+  const Check = ({ ok }: { ok: boolean }) => (
+    <span style={{ color: ok ? "#00d4aa" : "#ef4444", fontSize: "13px" }}>{ok ? "✓ OK" : "✗ Manquant"}</span>
+  );
+
   return (
-    <div className="space-y-6 max-w-2xl">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Scanner mon projet</h1>
-        <p className="text-gray-500 mt-1">Analysez la sécurité complète de votre site ou application</p>
+    <div style={{ maxWidth: "700px" }}>
+      <div style={{ marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "22px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>Scanner mon projet</h1>
+        <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Analyse SSL, headers de sécurité, cookies et redirection HTTPS</p>
+      </div>
+      <div style={{ background: "#0a1929", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "20px", marginBottom: "24px" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "16px" }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d4aa" }}></div>
+          <span style={{ fontSize: "11px", color: "#5a8a9f", marginLeft: "8px", fontFamily: "monospace" }}>lokky — scanner</span>
+        </div>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
+          <span style={{ fontSize: "12px", color: "#00d4aa", fontFamily: "monospace", whiteSpace: "nowrap" }}>$ scan</span>
+          <input
+            type="text"
+            value={url}
+            onChange={(e) => setUrl(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && !loading && url && handleScan()}
+            placeholder="monprojet.com"
+            style={{ flex: 1, background: "rgba(255,255,255,0.03)", border: "0.5px solid #1a3a4a", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#e0f0f8", fontFamily: "monospace", outline: "none" }}
+          />
+          <button onClick={handleScan} disabled={loading || !url} style={{ background: "#00d4aa", color: "#0a1929", border: "none", borderRadius: "6px", padding: "10px 20px", fontSize: "13px", fontWeight: "600", cursor: "pointer", opacity: loading || !url ? 0.5 : 1, whiteSpace: "nowrap" }}>
+            {loading ? "Scan..." : "Lancer"}
+          </button>
+        </div>
+        {loading && (
+          <div style={{ marginTop: "14px" }}>
+            <p style={{ fontSize: "11px", color: "#00d4aa", fontFamily: "monospace" }}>→ Vérification SSL en cours...</p>
+            <p style={{ fontSize: "11px", color: "#5a8a9f", fontFamily: "monospace", marginTop: "4px" }}>→ Analyse des headers de sécurité...</p>
+          </div>
+        )}
+        {error && <p style={{ marginTop: "12px", fontSize: "12px", color: "#ef4444", fontFamily: "monospace" }}>✗ Erreur: {error}</p>}
       </div>
 
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <input
-          type="text"
-          value={url}
-          onChange={(e) => setUrl(e.target.value)}
-          placeholder="monprojet.com"
-          className="w-full border rounded-lg px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-black text-gray-900"
-        />
-        <button
-          onClick={handleScan}
-          disabled={loading || !url}
-          className="bg-black text-white px-6 py-3 rounded-lg text-sm font-medium disabled:opacity-50 w-full"
-        >
-          {loading ? "Scan en cours..." : "🔍 Lancer le scan"}
-        </button>
-
-        {error && <p className="text-red-500 text-sm">{error}</p>}
-
-        {result && (
-          <div className="border rounded-xl p-5 space-y-4 mt-4">
-            <div className="flex justify-between items-center">
-              <p className="font-semibold text-gray-900">{result.domain}</p>
-              <span className={`px-3 py-1 rounded-full text-xl font-bold ${scoreColors[result.score]}`}>
-                {result.score}
-              </span>
-            </div>
-
-            <div className="space-y-2">
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Certificat SSL</span>
-                <span className={result.sslValid ? "text-green-700 font-medium" : "text-red-700 font-medium"}>
-                  {result.sslValid ? "✓ Valide" : "✗ Problème"}
-                </span>
+      {result && (() => {
+        const sc = scoreColor(result.score);
+        return (
+          <div style={{ background: "#0a1929", border: "0.5px solid #1a3a4a", borderRadius: "10px", overflow: "hidden" }}>
+            <div style={{ padding: "20px 24px", borderBottom: "0.5px solid #1a3a4a", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <div>
+                <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "4px", fontFamily: "monospace" }}>rapport de sécurité</p>
+                <p style={{ fontSize: "16px", fontWeight: "500", color: "#e0f0f8" }}>{result.domain}</p>
               </div>
-              {result.expiresAt && (
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Expiration SSL</span>
-                  <span className="text-gray-900">{new Date(result.expiresAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}</span>
-                </div>
-              )}
-              <div className="flex justify-between text-sm">
-                <span className="text-gray-600">Redirection HTTPS</span>
-                <span className={result.httpsRedirect ? "text-green-700 font-medium" : "text-red-700 font-medium"}>
-                  {result.httpsRedirect ? "✓ Activée" : "✗ Manquante"}
-                </span>
+              <div style={{ background: sc.bg, border: `0.5px solid ${sc.border}`, borderRadius: "8px", padding: "8px 16px", textAlign: "center" }}>
+                <p style={{ fontSize: "28px", fontWeight: "700", color: sc.color, lineHeight: "1" }}>{result.score}</p>
+                <p style={{ fontSize: "9px", color: sc.color, marginTop: "2px" }}>Score</p>
               </div>
             </div>
-
-            <div className="border-t pt-4 space-y-2">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Headers de sécurité</p>
-              {Object.entries(result.securityHeaders).map(([key, value]) => (
-                <div key={key} className="flex justify-between text-sm">
-                  <span className="text-gray-600">{headerLabels[key] ?? key}</span>
-                  <span className={value ? "text-green-700" : "text-red-700"}>{value ? "✓" : "✗"}</span>
+            <div style={{ padding: "20px 24px", display: "grid", gap: "10px" }}>
+              {[
+                { icon: "ti-lock", label: "Certificat SSL", ok: result.sslValid, sub: result.expiresAt ? `Expire le ${new Date(result.expiresAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}` : undefined },
+                { icon: "ti-arrow-right", label: "Redirection HTTPS", ok: result.httpsRedirect },
+                ...Object.entries(result.securityHeaders).map(([key, value]) => ({ icon: "ti-shield", label: headerLabels[key] ?? key, ok: value })),
+                ...(result.cookies.found ? [
+                  { icon: "ti-cookie", label: "Cookie Secure", ok: result.cookies.secure },
+                  { icon: "ti-cookie", label: "Cookie HttpOnly", ok: result.cookies.httpOnly },
+                ] : []),
+              ].map((item, i) => (
+                <div key={i} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", padding: "10px 14px", background: "rgba(255,255,255,0.02)", borderRadius: "6px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <i className={`ti ${item.icon}`} style={{ fontSize: "14px", color: "#5a8a9f" }}></i>
+                    <div>
+                      <p style={{ fontSize: "13px", color: "#e0f0f8" }}>{item.label}</p>
+                      {item.sub && <p style={{ fontSize: "10px", color: "#5a8a9f" }}>{item.sub}</p>}
+                    </div>
+                  </div>
+                  <Check ok={item.ok} />
                 </div>
               ))}
             </div>
-
-            {result.cookies.found && (
-              <div className="border-t pt-4 space-y-2">
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide">Cookies</p>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Cookie sécurisé (Secure)</span>
-                  <span className={result.cookies.secure ? "text-green-700" : "text-red-700"}>{result.cookies.secure ? "✓" : "✗"}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Protégé contre le vol (HttpOnly)</span>
-                  <span className={result.cookies.httpOnly ? "text-green-700" : "text-red-700"}>{result.cookies.httpOnly ? "✓" : "✗"}</span>
-                </div>
-              </div>
-            )}
           </div>
-        )}
-      </div>
+        );
+      })()}
     </div>
   );
 }

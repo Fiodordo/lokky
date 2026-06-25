@@ -1,128 +1,97 @@
 "use client";
 
+import { useState } from "react";
+
 const guides = [
   {
-    issue: "Certificat SSL invalide ou expiré",
-    severity: "🔴 Critique",
-    severityColor: "bg-red-100 text-red-700",
+    id: "ssl", issue: "Certificat SSL invalide ou expiré", severity: "Critique", severityColor: "#ef4444", severityBg: "rgba(239,68,68,0.1)", icon: "ti-lock",
     what: "Votre site n'est pas chiffré. Les visiteurs voient un message d'alerte rouge et quittent immédiatement.",
-    why: "Google pénalise les sites non sécurisés. Les paiements en ligne ne fonctionnent plus. Vous perdez des clients.",
-    how: [
-      "Connectez-vous à votre hébergeur (OVH, Hostinger, Infomaniak...)",
-      "Allez dans Hébergement → SSL/TLS",
-      "Cliquez sur 'Renouveler' ou 'Activer Let's Encrypt'",
-      "Attendez 5-10 minutes et vérifiez que le cadenas 🔒 apparaît",
-    ],
-    cms: {
-      Shopify: "Paramètres → Domaines → SSL actif automatiquement",
-      WordPress: "Installez le plugin 'Really Simple SSL'",
-      Bubble: "Settings → Domain → SSL activé automatiquement",
-    },
+    why: "Google pénalise les sites non sécurisés. Les paiements en ligne ne fonctionnent plus.",
+    how: ["Connectez-vous à votre hébergeur (OVH, Hostinger, Infomaniak...)", "Allez dans Hébergement → SSL/TLS", "Cliquez sur 'Renouveler' ou 'Activer Let's Encrypt'", "Attendez 5-10 minutes et vérifiez que le cadenas apparaît"],
+    cms: { Shopify: "Paramètres → Domaines → SSL actif automatiquement", WordPress: "Installez le plugin 'Really Simple SSL'", Bubble: "Settings → Domain → SSL activé automatiquement", Vercel: "Automatique si domaine connecté" },
   },
   {
-    issue: "Redirection HTTPS manquante",
-    severity: "🟠 Important",
-    severityColor: "bg-orange-100 text-orange-700",
-    what: "Votre site est accessible en HTTP (non sécurisé). Les visiteurs qui tapent votre URL sans 'https://' ne sont pas redirigés automatiquement.",
-    why: "Les données échangées ne sont pas chiffrées. Google préfère les sites HTTPS dans ses résultats.",
-    how: [
-      "Dans votre hébergeur, activez la redirection HTTP → HTTPS",
-      "Sur Cloudflare : SSL/TLS → Edge Certificates → Always Use HTTPS → ON",
-      "Sur Apache : ajoutez 'Redirect permanent / https://votresite.com' dans .htaccess",
-      "Sur Nginx : ajoutez 'return 301 https://$host$request_uri;'",
-    ],
-    cms: {
-      Shopify: "Automatique — rien à faire",
-      WordPress: "Paramètres → Général → Mettez https:// dans l'URL",
-      Bubble: "Automatique si domaine connecté",
-    },
+    id: "https", issue: "Redirection HTTPS manquante", severity: "Important", severityColor: "#f59e0b", severityBg: "rgba(245,158,11,0.1)", icon: "ti-arrow-right",
+    what: "Votre site est accessible en HTTP non sécurisé. Les données échangées ne sont pas chiffrées.",
+    why: "Google préfère les sites HTTPS. Les utilisateurs peuvent être interceptés par des attaquants.",
+    how: ["Sur Cloudflare : SSL/TLS → Edge Certificates → Always Use HTTPS → ON", "Sur Apache : ajoutez 'Redirect permanent / https://votresite.com' dans .htaccess", "Sur Nginx : ajoutez 'return 301 https://$host$request_uri;'"],
+    cms: { Shopify: "Automatique", WordPress: "Paramètres → Général → Mettez https:// dans l'URL", Vercel: "Automatique", Cloudflare: "SSL/TLS → Always Use HTTPS" },
   },
   {
-    issue: "Headers de sécurité manquants",
-    severity: "🟠 Important",
-    severityColor: "bg-orange-100 text-orange-700",
-    what: "Votre site n'a pas les protections HTTP recommandées. Cela expose vos utilisateurs à des attaques comme le clickjacking ou l'injection de scripts.",
+    id: "headers", issue: "Headers de sécurité manquants", severity: "Important", severityColor: "#f59e0b", severityBg: "rgba(245,158,11,0.1)", icon: "ti-shield",
+    what: "Votre site n'a pas les protections HTTP recommandées contre le clickjacking et les injections de scripts.",
     why: "Ces headers protègent contre des attaques courantes et améliorent votre score de sécurité.",
-    how: [
-      "Sur Vercel : créez un fichier vercel.json avec des headers de sécurité",
-      "Sur Netlify : créez un fichier _headers à la racine",
-      "Sur Cloudflare : utilisez les Transform Rules pour ajouter des headers",
-    ],
-    cms: {
-      Vercel: "Ajoutez dans vercel.json : { \"headers\": [{ \"source\": \"/(.*)\", \"headers\": [{ \"key\": \"X-Frame-Options\", \"value\": \"DENY\" }] }] }",
-      Netlify: "Créez _headers : /* X-Frame-Options: DENY",
-      Cloudflare: "Rules → Transform Rules → Modify Response Header",
-    },
+    how: ["Sur Vercel : ajoutez des headers dans vercel.json", "Sur Netlify : créez un fichier _headers à la racine", "Sur Cloudflare : Rules → Transform Rules → Modify Response Header"],
+    cms: { Vercel: "vercel.json → headers → X-Frame-Options: DENY", Netlify: "_headers → /* X-Frame-Options: DENY", Cloudflare: "Rules → Transform Rules" },
   },
   {
-    issue: "Cookies non sécurisés",
-    severity: "🟡 Mineur",
-    severityColor: "bg-yellow-100 text-yellow-700",
-    what: "Vos cookies n'ont pas les attributs 'Secure' et 'HttpOnly'. Ils peuvent être volés via des attaques XSS.",
-    why: "Les cookies de session sans protection peuvent être interceptés et utilisés pour usurper l'identité de vos utilisateurs.",
-    how: [
-      "Dans votre code, ajoutez 'Secure' et 'HttpOnly' lors de la création des cookies",
-      "Exemple Node.js : res.cookie('session', value, { secure: true, httpOnly: true })",
-      "Exemple Next.js : cookies().set('session', value, { secure: true, httpOnly: true })",
-    ],
-    cms: {
-      Shopify: "Géré automatiquement par Shopify",
-      WordPress: "Installez 'Wordfence Security' pour sécuriser les cookies",
-      "Next.js": "Utilisez l'option { secure: true, httpOnly: true } dans vos API routes",
-    },
+    id: "cookies", issue: "Cookies non sécurisés", severity: "Mineur", severityColor: "#00d4aa", severityBg: "rgba(0,212,170,0.1)", icon: "ti-cookie",
+    what: "Vos cookies n'ont pas les attributs Secure et HttpOnly. Ils peuvent être volés via des attaques XSS.",
+    why: "Les cookies de session sans protection peuvent être interceptés pour usurper l'identité de vos utilisateurs.",
+    how: ["Node.js : res.cookie('session', value, { secure: true, httpOnly: true })", "Next.js : cookies().set('session', value, { secure: true, httpOnly: true })", "Express : utilisez helmet.js pour sécuriser automatiquement les cookies"],
+    cms: { Shopify: "Géré automatiquement", WordPress: "Installez Wordfence Security", "Next.js": "Option { secure: true, httpOnly: true }" },
   },
 ];
 
 export default function GuidesPage() {
+  const [open, setOpen] = useState<string | null>("ssl");
+
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Guides de correction</h1>
-        <p className="text-gray-500 mt-1">Comment corriger les failles détectées par Lokky</p>
+    <div style={{ maxWidth: "700px" }}>
+      <div style={{ marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "22px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>Guides de correction</h1>
+        <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Comment corriger les failles détectées par Lokky</p>
       </div>
-
-      <div className="space-y-6">
+      <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
         {guides.map((guide) => (
-          <div key={guide.issue} className="bg-white rounded-xl border p-6 space-y-4">
-            <div className="flex justify-between items-start">
-              <h2 className="text-lg font-semibold text-gray-900">{guide.issue}</h2>
-              <span className={`text-xs font-medium px-2 py-1 rounded-full ${guide.severityColor}`}>
-                {guide.severity}
-              </span>
-            </div>
-
-            <div className="space-y-3">
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Ce que ça veut dire</p>
-                <p className="text-sm text-gray-700">{guide.what}</p>
+          <div key={guide.id} style={{ background: "#0a1929", border: "0.5px solid #1a3a4a", borderRadius: "10px", overflow: "hidden" }}>
+            <button onClick={() => setOpen(open === guide.id ? null : guide.id)} style={{ width: "100%", padding: "16px 20px", display: "flex", justifyContent: "space-between", alignItems: "center", background: "none", border: "none", cursor: "pointer" }}>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <i className={`ti ${guide.icon}`} style={{ fontSize: "16px", color: guide.severityColor }}></i>
+                <p style={{ fontSize: "13px", fontWeight: "500", color: "#e0f0f8", textAlign: "left" }}>{guide.issue}</p>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-1">Pourquoi c'est important</p>
-                <p className="text-sm text-gray-700">{guide.why}</p>
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontSize: "10px", fontWeight: "600", padding: "2px 10px", borderRadius: "20px", background: guide.severityBg, color: guide.severityColor, whiteSpace: "nowrap" }}>{guide.severity}</span>
+                <i className={`ti ${open === guide.id ? "ti-chevron-up" : "ti-chevron-down"}`} style={{ fontSize: "14px", color: "#5a8a9f" }}></i>
               </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Comment corriger</p>
-                <ol className="space-y-1">
-                  {guide.how.map((step, i) => (
-                    <li key={i} className="text-sm text-gray-700 flex gap-2">
-                      <span className="font-medium text-gray-400">{i + 1}.</span>
-                      {step}
-                    </li>
-                  ))}
-                </ol>
-              </div>
-              <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">Par plateforme</p>
-                <div className="space-y-1">
-                  {Object.entries(guide.cms).map(([platform, instruction]) => (
-                    <div key={platform} className="flex gap-2 text-sm">
-                      <span className="font-medium text-gray-700 min-w-20">{platform} :</span>
-                      <span className="text-gray-600">{instruction}</span>
+            </button>
+            {open === guide.id && (
+              <div style={{ padding: "0 20px 20px", borderTop: "0.5px solid #1a3a4a" }}>
+                <div style={{ display: "flex", flexDirection: "column", gap: "16px", paddingTop: "16px" }}>
+                  {[
+                    { label: "→ ce que ça veut dire", text: guide.what },
+                    { label: "→ pourquoi c'est important", text: guide.why },
+                  ].map((item) => (
+                    <div key={item.label}>
+                      <p style={{ fontSize: "10px", color: "#5a8a9f", fontFamily: "monospace", marginBottom: "6px" }}>{item.label}</p>
+                      <p style={{ fontSize: "13px", color: "#e0f0f8", lineHeight: "1.6" }}>{item.text}</p>
                     </div>
                   ))}
+                  <div>
+                    <p style={{ fontSize: "10px", color: "#5a8a9f", fontFamily: "monospace", marginBottom: "8px" }}>→ comment corriger</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {guide.how.map((step, i) => (
+                        <div key={i} style={{ display: "flex", gap: "10px", alignItems: "flex-start" }}>
+                          <span style={{ fontSize: "10px", color: "#00d4aa", fontFamily: "monospace", marginTop: "2px", whiteSpace: "nowrap" }}>{i + 1}.</span>
+                          <p style={{ fontSize: "12px", color: "#5a8a9f", lineHeight: "1.6" }}>{step}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                  <div>
+                    <p style={{ fontSize: "10px", color: "#5a8a9f", fontFamily: "monospace", marginBottom: "8px" }}>→ par plateforme</p>
+                    <div style={{ display: "flex", flexDirection: "column", gap: "6px" }}>
+                      {Object.entries(guide.cms).map(([platform, instruction]) => (
+                        <div key={platform} style={{ display: "flex", gap: "10px", background: "rgba(255,255,255,0.02)", borderRadius: "6px", padding: "8px 12px" }}>
+                          <span style={{ fontSize: "11px", color: "#00d4aa", fontFamily: "monospace", minWidth: "80px" }}>{platform}</span>
+                          <p style={{ fontSize: "11px", color: "#5a8a9f" }}>{instruction}</p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         ))}
       </div>

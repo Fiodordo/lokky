@@ -2,46 +2,21 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
-import { useRouter } from "next/navigation";
 
 const plans = [
-  {
-    id: "starter",
-    name: "Starter",
-    price: "Gratuit",
-    desc: "Pour découvrir",
-    features: ["1 projet", "Scan manuel", "Score de sécurité"],
-    current: true,
-  },
-  {
-    id: "builder",
-    name: "Builder",
-    price: "29€/mois",
-    desc: "Pour les makers actifs",
-    features: ["5 projets", "Scan hebdomadaire", "Alertes email", "Historique complet"],
-    highlight: true,
-  },
-  {
-    id: "agence",
-    name: "Agence",
-    price: "99€/mois",
-    desc: "Pour les pros",
-    features: ["Projets illimités", "Scan quotidien", "Rapports exportables", "Support prioritaire"],
-  },
+  { id: "starter", name: "Starter", price: "Gratuit", desc: "Pour découvrir Lokky", features: ["1 projet", "Scan manuel", "Score de sécurité", "Rapport basique"], current: true },
+  { id: "builder", name: "Builder", price: "29€", period: "/mois", desc: "Pour les makers actifs", features: ["5 projets", "Scan hebdomadaire", "Alertes email SSL", "Historique complet", "Guides de correction"], highlight: true },
+  { id: "agence", name: "Agence", price: "99€", period: "/mois", desc: "Pour les pros et agences", features: ["Projets illimités", "Scan quotidien", "Rapports exportables", "Support prioritaire", "Multi-utilisateurs"] },
 ];
 
 export default function UpgradePage() {
-  const router = useRouter();
   const [email, setEmail] = useState("");
   const [userId, setUserId] = useState("");
   const [loading, setLoading] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) {
-        setEmail(data.user.email ?? "");
-        setUserId(data.user.id);
-      }
+      if (data.user) { setEmail(data.user.email ?? ""); setUserId(data.user.id); }
     });
   }, []);
 
@@ -49,68 +24,48 @@ export default function UpgradePage() {
     if (planId === "starter") return;
     setLoading(planId);
     try {
-      const res = await fetch("/api/create-checkout", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ plan: planId, userId, email }),
-      });
+      const res = await fetch("/api/create-checkout", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ plan: planId, userId, email }) });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
       else alert("Erreur lors de la création du paiement");
-    } catch {
-      alert("Erreur réseau");
-    } finally {
-      setLoading(null);
-    }
+    } catch { alert("Erreur réseau"); } finally { setLoading(null); }
   }
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Mon abonnement</h1>
-        <p className="text-gray-500 mt-1">Choisissez le plan qui correspond à vos besoins</p>
+    <div style={{ maxWidth: "800px" }}>
+      <div style={{ marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "22px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>Mon abonnement</h1>
+        <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Choisissez le plan qui correspond à vos besoins</p>
       </div>
-
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
         {plans.map((plan) => (
-          <div
-            key={plan.id}
-            className={`rounded-xl p-6 border text-left ${
-              plan.highlight ? "bg-black text-white border-black" : "bg-white"
-            }`}
-          >
-            {plan.current && (
-              <span className="inline-block bg-blue-100 text-blue-700 text-xs font-medium px-2 py-0.5 rounded-full mb-3">
-                Plan actuel
-              </span>
-            )}
-            <h2 className="font-bold text-xl mb-1">{plan.name}</h2>
-            <p className={`text-sm mb-4 ${plan.highlight ? "text-gray-400" : "text-gray-500"}`}>
-              {plan.desc}
-            </p>
-            <div className="text-3xl font-bold mb-6">{plan.price}</div>
-            <ul className="space-y-2 mb-6">
+          <div key={plan.id} style={{ background: plan.highlight ? "rgba(0,212,170,0.05)" : "#0a1929", border: plan.highlight ? "0.5px solid rgba(0,212,170,0.4)" : "0.5px solid #1a3a4a", borderRadius: "12px", padding: "24px", display: "flex", flexDirection: "column", gap: "16px", position: "relative" }}>
+            {plan.highlight && <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "#00d4aa", color: "#0a1929", fontSize: "10px", fontWeight: "700", padding: "3px 12px", borderRadius: "20px", whiteSpace: "nowrap" }}>Recommandé</div>}
+            {plan.current && <div style={{ background: "rgba(90,138,159,0.15)", color: "#5a8a9f", fontSize: "10px", fontWeight: "500", padding: "3px 10px", borderRadius: "20px", display: "inline-block", width: "fit-content" }}>Plan actuel</div>}
+            <div>
+              <p style={{ fontSize: "14px", fontWeight: "500", color: plan.highlight ? "#00d4aa" : "#e0f0f8", marginBottom: "4px" }}>{plan.name}</p>
+              <p style={{ fontSize: "11px", color: "#5a8a9f" }}>{plan.desc}</p>
+            </div>
+            <div style={{ display: "flex", alignItems: "baseline", gap: "2px" }}>
+              <span style={{ fontSize: "28px", fontWeight: "700", color: "#e0f0f8" }}>{plan.price}</span>
+              {plan.period && <span style={{ fontSize: "12px", color: "#5a8a9f" }}>{plan.period}</span>}
+            </div>
+            <ul style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
               {plan.features.map((f) => (
-                <li key={f} className={`text-sm flex gap-2 ${plan.highlight ? "text-gray-300" : "text-gray-600"}`}>
-                  <span>✓</span> {f}
+                <li key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "#5a8a9f", listStyle: "none" }}>
+                  <i className="ti ti-check" style={{ fontSize: "13px", color: "#00d4aa" }}></i>{f}
                 </li>
               ))}
             </ul>
-            <button
-              onClick={() => handleSubscribe(plan.id)}
-              disabled={plan.current || loading === plan.id}
-              className={`w-full py-2 rounded-lg text-sm font-medium disabled:opacity-50 ${
-                plan.highlight
-                  ? "bg-white text-black hover:bg-gray-100"
-                  : plan.current
-                  ? "bg-gray-100 text-gray-400 cursor-not-allowed"
-                  : "bg-black text-white hover:bg-gray-800"
-              }`}
-            >
-              {plan.current ? "Plan actuel" : loading === plan.id ? "Redirection..." : "Choisir ce plan"}
+            <button onClick={() => handleSubscribe(plan.id)} disabled={plan.current || loading === plan.id} style={{ background: plan.highlight ? "#00d4aa" : "transparent", color: plan.highlight ? "#0a1929" : plan.current ? "#5a8a9f" : "#e0f0f8", border: plan.highlight ? "none" : "0.5px solid #1a3a4a", borderRadius: "6px", padding: "10px", fontSize: "13px", fontWeight: "600", cursor: plan.current ? "default" : "pointer", opacity: loading === plan.id ? 0.6 : 1, marginTop: "auto" }}>
+              {plan.current ? "Plan actuel" : loading === plan.id ? "Redirection..." : `Choisir ${plan.name}`}
             </button>
           </div>
         ))}
+      </div>
+      <div style={{ marginTop: "24px", display: "flex", alignItems: "center", gap: "8px", justifyContent: "center" }}>
+        <i className="ti ti-shield-check" style={{ fontSize: "14px", color: "#5a8a9f" }}></i>
+        <p style={{ fontSize: "11px", color: "#5a8a9f" }}>Paiement sécurisé par Stripe — Annulation à tout moment</p>
       </div>
     </div>
   );

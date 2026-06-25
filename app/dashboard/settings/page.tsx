@@ -18,9 +18,7 @@ export default function SettingsPage() {
 
   async function handlePasswordReset() {
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: "https://lokky-mu.vercel.app/reset-password",
-    });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: "https://lokky-mu.vercel.app/reset-password" });
     if (error) setMessage("Erreur : " + error.message);
     else setMessage("Email de réinitialisation envoyé !");
     setLoading(false);
@@ -32,57 +30,53 @@ export default function SettingsPage() {
   }
 
   return (
-    <div className="space-y-6 max-w-lg">
-      <div>
-        <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
-        <p className="text-gray-500 mt-1">Gérez votre compte Lokky</p>
+    <div style={{ maxWidth: "560px" }}>
+      <div style={{ marginBottom: "32px" }}>
+        <h1 style={{ fontSize: "22px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>Paramètres</h1>
+        <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Gérez votre compte Lokky</p>
       </div>
-
-      {/* Compte */}
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <h2 className="font-semibold text-gray-900">Mon compte</h2>
-        <div>
-          <p className="text-xs text-gray-500 mb-1">Adresse email</p>
-          <p className="text-sm font-medium text-gray-900">{email}</p>
-        </div>
-        <div>
-          <p className="text-xs text-gray-500 mb-2">Mot de passe</p>
-          <button
-            onClick={handlePasswordReset}
-            disabled={loading}
-            className="bg-black text-white px-4 py-2 rounded-lg text-sm font-medium disabled:opacity-50"
-          >
-            {loading ? "Envoi..." : "Réinitialiser mon mot de passe"}
-          </button>
-          {message && <p className="text-sm text-green-700 mt-2">{message}</p>}
-        </div>
-      </div>
-
-      {/* Notifications */}
-      <div className="bg-white rounded-xl border p-6 space-y-4">
-        <h2 className="font-semibold text-gray-900">Notifications</h2>
-        <div className="flex justify-between items-center">
+      {[
+        { title: "→ compte", content: (
           <div>
-            <p className="text-sm font-medium text-gray-900">Alertes SSL par email</p>
-            <p className="text-xs text-gray-500">Reçois un email 7 jours avant l'expiration</p>
+            <div style={{ marginBottom: "16px" }}>
+              <p style={{ fontSize: "10px", color: "#5a8a9f", marginBottom: "4px" }}>Adresse email</p>
+              <p style={{ fontSize: "13px", color: "#e0f0f8", fontFamily: "monospace" }}>{email}</p>
+            </div>
+            <div>
+              <p style={{ fontSize: "10px", color: "#5a8a9f", marginBottom: "8px" }}>Mot de passe</p>
+              <button onClick={handlePasswordReset} disabled={loading} style={{ background: "transparent", border: "0.5px solid #1a3a4a", color: "#e0f0f8", borderRadius: "6px", padding: "8px 16px", fontSize: "12px", cursor: "pointer", opacity: loading ? 0.6 : 1 }}>
+                {loading ? "Envoi..." : "Réinitialiser mon mot de passe"}
+              </button>
+              {message && <p style={{ fontSize: "12px", color: "#00d4aa", marginTop: "8px", fontFamily: "monospace" }}>✓ {message}</p>}
+            </div>
           </div>
-          <span className="bg-green-100 text-green-700 text-xs font-medium px-2 py-1 rounded-full">Actif</span>
+        )},
+        { title: "→ notifications", content: (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+            <div>
+              <p style={{ fontSize: "13px", color: "#e0f0f8", marginBottom: "4px" }}>Alertes SSL par email</p>
+              <p style={{ fontSize: "11px", color: "#5a8a9f" }}>Email 7 jours avant l'expiration du certificat</p>
+            </div>
+            <span style={{ background: "rgba(0,212,170,0.1)", color: "#00d4aa", border: "0.5px solid rgba(0,212,170,0.3)", fontSize: "10px", fontWeight: "600", padding: "3px 10px", borderRadius: "20px" }}>Actif</span>
+          </div>
+        )},
+        { title: "→ danger zone", content: (
+          <div>
+            <p style={{ fontSize: "13px", color: "#e0f0f8", marginBottom: "4px" }}>Déconnexion</p>
+            <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "12px" }}>Se déconnecter de tous les appareils</p>
+            <button onClick={handleLogout} style={{ background: "rgba(239,68,68,0.08)", border: "0.5px solid rgba(239,68,68,0.3)", color: "#ef4444", borderRadius: "6px", padding: "8px 16px", fontSize: "12px", cursor: "pointer" }}>
+              Se déconnecter
+            </button>
+          </div>
+        )},
+      ].map((section) => (
+        <div key={section.title} style={{ background: "#0a1929", border: "0.5px solid #1a3a4a", borderRadius: "10px", overflow: "hidden", marginBottom: "16px" }}>
+          <div style={{ padding: "12px 18px", borderBottom: "0.5px solid #1a3a4a" }}>
+            <p style={{ fontSize: "11px", color: "#5a8a9f", fontFamily: "monospace" }}>{section.title}</p>
+          </div>
+          <div style={{ padding: "18px" }}>{section.content}</div>
         </div>
-      </div>
-
-      {/* Danger zone */}
-      <div className="bg-white rounded-xl border border-red-200 p-6 space-y-4">
-        <h2 className="font-semibold text-red-700">Zone de danger</h2>
-        <div>
-          <p className="text-sm text-gray-600 mb-3">Se déconnecter de tous les appareils</p>
-          <button
-            onClick={handleLogout}
-            className="border border-red-300 text-red-600 px-4 py-2 rounded-lg text-sm font-medium hover:bg-red-50"
-          >
-            Se déconnecter
-          </button>
-        </div>
-      </div>
+      ))}
     </div>
   );
 }
