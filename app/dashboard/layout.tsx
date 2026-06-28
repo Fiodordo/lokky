@@ -47,37 +47,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     </div>
   );
 
-  const Sidebar = () => (
-    <aside style={{ width: "220px", background: "#0a1929", borderRight: "0.5px solid #1a3a4a", display: "flex", flexDirection: "column", height: "100vh" }}>
-      <div style={{ padding: "20px 16px", borderBottom: "0.5px solid #1a3a4a" }}>
-        <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
-          <span style={{ fontSize: "16px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
-        </Link>
-      </div>
-      <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: "2px" }}>
-        {navItems.map((item) => {
-          const isActive = pathname === item.href;
-          return (
-            <Link key={item.href} href={item.href} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", borderRadius: "6px", fontSize: "13px", textDecoration: "none", background: isActive ? "rgba(0,212,170,0.1)" : "transparent", color: isActive ? "#00d4aa" : "#5a8a9f", borderLeft: isActive ? "2px solid #00d4aa" : "2px solid transparent" }}>
-              <i className={`ti ${item.icon}`} style={{ fontSize: "15px" }}></i>
-              {item.label}
-            </Link>
-          );
-        })}
-      </nav>
-      <div style={{ padding: "16px", borderTop: "0.5px solid #1a3a4a" }}>
-        <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email}</p>
-        <button onClick={handleLogout} style={{ fontSize: "11px", color: "#5a8a9f", background: "none", border: "none", cursor: "pointer" }}>→ Déconnexion</button>
-      </div>
-    </aside>
-  );
-
   return (
     <div style={{ minHeight: "100vh", background: "#0d1f2d" }}>
 
       {/* Mobile header */}
-      <div style={{ display: "none", position: "sticky", top: 0, zIndex: 20, background: "#0a1929", borderBottom: "0.5px solid #1a3a4a", padding: "0 16px", height: "56px", alignItems: "center", justifyContent: "space-between" }} className="mobile-header">
+      <div className="mobile-header" style={{ position: "sticky", top: 0, zIndex: 20, background: "#0a1929", borderBottom: "0.5px solid #1a3a4a", padding: "0 16px", height: "56px", alignItems: "center", justifyContent: "space-between" }}>
         <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
           <i className="ti ti-shield-check" style={{ fontSize: "16px", color: "#00d4aa" }}></i>
           <span style={{ fontSize: "14px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
@@ -117,23 +91,48 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       )}
 
       {/* Desktop layout */}
-      <div style={{ display: "flex" }} className="desktop-layout">
-        <div style={{ position: "fixed", height: "100vh" }} className="desktop-sidebar">
-          <Sidebar />
+      <div className="desktop-layout" style={{ display: "flex" }}>
+        <div className="desktop-sidebar" style={{ position: "fixed", height: "100vh", width: "220px", background: "#0a1929", borderRight: "0.5px solid #1a3a4a", display: "flex", flexDirection: "column" }}>
+          <div style={{ padding: "20px 16px", borderBottom: "0.5px solid #1a3a4a" }}>
+            <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
+              <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
+              <span style={{ fontSize: "16px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
+            </Link>
+          </div>
+          <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: "2px" }}>
+            {navItems.map((item) => {
+              const isActive = pathname === item.href;
+              return (
+                <Link key={item.href} href={item.href} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", borderRadius: "6px", fontSize: "13px", textDecoration: "none", background: isActive ? "rgba(0,212,170,0.1)" : "transparent", color: isActive ? "#00d4aa" : "#5a8a9f", borderLeft: isActive ? "2px solid #00d4aa" : "2px solid transparent" }}>
+                  <i className={`ti ${item.icon}`} style={{ fontSize: "15px" }}></i>
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <div style={{ padding: "16px", borderTop: "0.5px solid #1a3a4a" }}>
+            <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email}</p>
+            <button onClick={handleLogout} style={{ fontSize: "11px", color: "#5a8a9f", background: "none", border: "none", cursor: "pointer" }}>→ Déconnexion</button>
+          </div>
         </div>
-        <main style={{ flex: 1, marginLeft: "220px", padding: "32px", minHeight: "100vh", background: "#0d1f2d" }} className="desktop-main">
+        <main className="desktop-main" style={{ flex: 1, marginLeft: "220px", padding: "32px", minHeight: "100vh", background: "#0d1f2d" }}>
           {children}
         </main>
       </div>
 
       <style>{`
+        .mobile-header { display: none; }
+        .desktop-sidebar { display: flex !important; }
+        .desktop-main { margin-left: 220px !important; padding: 32px !important; }
+
         @media (max-width: 768px) {
           .mobile-header { display: flex !important; }
           .desktop-sidebar { display: none !important; }
-          .desktop-layout { display: block !important; }
           .desktop-main { margin-left: 0 !important; padding: 16px !important; }
+          .desktop-layout { display: block !important; }
         }
       `}</style>
+
     </div>
   );
 }
