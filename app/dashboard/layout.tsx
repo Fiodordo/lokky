@@ -115,7 +115,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <button onClick={handleLogout} style={{ fontSize: "11px", color: "#5a8a9f", background: "none", border: "none", cursor: "pointer" }}>→ Déconnexion</button>
           </div>
         </div>
-        <main className="desktop-main" style={{ flex: 1, marginLeft: "220px", padding: "32px", minHeight: "100vh", background: "#0d1f2d" }}>
+        <main className="desktop-main" style={{ flex: 1, marginLeft: "220px", padding: "32px", minHeight: "100vh", background: "#0d1f2d", maxWidth: "100%" }}>
           {children}
         </main>
       </div>
