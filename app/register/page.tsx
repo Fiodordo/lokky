@@ -2,7 +2,7 @@
 
 import { FormEvent, useState } from "react";
 import { useRouter } from "next/navigation";
-import { AuthCard, AuthLink } from "@/components/auth-card";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
 
 export default function RegisterPage() {
@@ -19,10 +19,7 @@ export default function RegisterPage() {
     setSuccess(null);
     setLoading(true);
 
-    const { data, error: signUpError } = await supabase.auth.signUp({
-      email,
-      password,
-    });
+    const { data, error: signUpError } = await supabase.auth.signUp({ email, password });
 
     if (signUpError) {
       setError(signUpError.message);
@@ -36,82 +33,81 @@ export default function RegisterPage() {
       return;
     }
 
-    setSuccess(
-      "Compte créé. Vérifiez votre email pour confirmer votre inscription, puis connectez-vous."
-    );
+    setSuccess("Compte créé ! Vérifiez votre email pour confirmer votre inscription.");
     setLoading(false);
   }
 
   return (
-    <AuthCard
-      title="Inscription"
-      subtitle="Créez votre compte en quelques secondes"
-      footer={
-        <>
-          Déjà un compte ? <AuthLink href="/login">Se connecter</AuthLink>
-        </>
-      }
-    >
-      <form onSubmit={handleSubmit} className="space-y-5">
-        <div>
-          <label
-            htmlFor="email"
-            className="mb-1.5 block text-sm font-medium text-zinc-700"
-          >
-            Email
-          </label>
-          <input
-            id="email"
-            type="email"
-            autoComplete="email"
-            required
-            value={email}
-            onChange={(event) => setEmail(event.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-            placeholder="vous@exemple.com"
-          />
+    <div style={{ minHeight: "100vh", background: "#0a1929", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", fontFamily: "var(--font-sans)" }}>
+
+      {/* Logo */}
+      <Link href="/" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none", marginBottom: "40px" }}>
+        <i className="ti ti-shield-check" style={{ fontSize: "20px", color: "#00d4aa" }}></i>
+        <span style={{ fontSize: "18px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
+      </Link>
+
+      {/* Card */}
+      <div style={{ background: "#0d1f2d", border: "0.5px solid #1a3a4a", borderRadius: "12px", padding: "32px", width: "100%", maxWidth: "400px" }}>
+
+        {/* Terminal header */}
+        <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "24px" }}>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
+          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d4aa" }}></div>
+          <span style={{ fontSize: "11px", color: "#5a8a9f", marginLeft: "8px", fontFamily: "monospace" }}>lokky — inscription</span>
         </div>
 
-        <div>
-          <label
-            htmlFor="password"
-            className="mb-1.5 block text-sm font-medium text-zinc-700"
+        <h1 style={{ fontSize: "18px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>Créer un compte</h1>
+        <p style={{ fontSize: "12px", color: "#5a8a9f", marginBottom: "24px" }}>Commencez à sécuriser vos projets gratuitement</p>
+
+        <form onSubmit={handleSubmit} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+          <div>
+            <label style={{ fontSize: "11px", color: "#5a8a9f", display: "block", marginBottom: "6px", fontFamily: "monospace" }}>→ email</label>
+            <input
+              type="email"
+              required
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="vous@exemple.com"
+              style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "0.5px solid #1a3a4a", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#e0f0f8", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+
+          <div>
+            <label style={{ fontSize: "11px", color: "#5a8a9f", display: "block", marginBottom: "6px", fontFamily: "monospace" }}>→ mot de passe</label>
+            <input
+              type="password"
+              required
+              minLength={6}
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Minimum 6 caractères"
+              style={{ width: "100%", background: "rgba(255,255,255,0.03)", border: "0.5px solid #1a3a4a", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#e0f0f8", outline: "none", boxSizing: "border-box" }}
+            />
+          </div>
+
+          {error && (
+            <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace" }}>✗ {error}</p>
+          )}
+
+          {success && (
+            <p style={{ fontSize: "12px", color: "#00d4aa", fontFamily: "monospace" }}>✓ {success}</p>
+          )}
+
+          <button
+            type="submit"
+            disabled={loading}
+            style={{ background: "#00d4aa", color: "#0a1929", border: "none", borderRadius: "6px", padding: "12px", fontSize: "13px", fontWeight: "600", cursor: "pointer", opacity: loading ? 0.6 : 1, marginTop: "8px" }}
           >
-            Mot de passe
-          </label>
-          <input
-            id="password"
-            type="password"
-            autoComplete="new-password"
-            required
-            minLength={6}
-            value={password}
-            onChange={(event) => setPassword(event.target.value)}
-            className="w-full rounded-lg border border-zinc-300 px-3 py-2.5 text-sm text-zinc-900 outline-none transition focus:border-zinc-900 focus:ring-2 focus:ring-zinc-900/10"
-            placeholder="Minimum 6 caractères"
-          />
-        </div>
+            {loading ? "Création..." : "Créer mon compte"}
+          </button>
+        </form>
 
-        {error && (
-          <p className="rounded-lg bg-red-50 px-3 py-2 text-sm text-red-600">
-            {error}
-          </p>
-        )}
-
-        {success && (
-          <p className="rounded-lg bg-emerald-50 px-3 py-2 text-sm text-emerald-700">
-            {success}
-          </p>
-        )}
-
-        <button
-          type="submit"
-          disabled={loading}
-          className="w-full rounded-lg bg-zinc-900 px-4 py-2.5 text-sm font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {loading ? "Création..." : "Créer un compte"}
-        </button>
-      </form>
-    </AuthCard>
+        <p style={{ fontSize: "12px", color: "#5a8a9f", textAlign: "center", marginTop: "20px" }}>
+          Déjà un compte ?{" "}
+          <Link href="/login" style={{ color: "#00d4aa", textDecoration: "none" }}>Se connecter</Link>
+        </p>
+      </div>
+    </div>
   );
 }
