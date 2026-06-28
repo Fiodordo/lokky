@@ -33,6 +33,7 @@ export default function ScannerPage() {
   const [result, setResult] = useState<ScanResult | null>(null);
   const [error, setError] = useState("");
   const [ownerConfirmed, setOwnerConfirmed] = useState(false);
+  const [summary, setSummary] = useState<string | null>(null);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -44,6 +45,7 @@ export default function ScannerPage() {
     setLoading(true);
     setError("");
     setResult(null);
+    setSummary(null);
     try {
       const res = await fetch("/api/scan", {
         method: "POST",
@@ -51,8 +53,18 @@ export default function ScannerPage() {
         body: JSON.stringify({ url, userId }),
       });
       const data = await res.json();
-      if (data.error) setError(data.error);
-      else setResult(data);
+      if (data.error) {
+        setError(data.error);
+      } else {
+        setResult(data);
+        const sumRes = await fetch("/api/summarize", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        const sumData = await sumRes.json();
+        if (sumData.summary) setSummary(sumData.summary);
+      }
     } catch {
       setError("Erreur lors du scan");
     } finally {
@@ -91,7 +103,6 @@ export default function ScannerPage() {
           />
         </div>
 
-        {/* Checkbox propriété */}
         <div style={{ display: "flex", alignItems: "flex-start", gap: "10px", padding: "10px 0", marginBottom: "12px" }}>
           <input
             type="checkbox"
@@ -108,7 +119,7 @@ export default function ScannerPage() {
         <button
           onClick={handleScan}
           disabled={loading || !url || !ownerConfirmed}
-          style={{ background: "#00d4aa", color: "#0a1929", border: "none", borderRadius: "6px", padding: "10px 20px", fontSize: "13px", fontWeight: "600", cursor: "pointer", opacity: loading || !url || !ownerConfirmed ? 0.5 : 1, whiteSpace: "nowrap" }}
+          style={{ background: "#00d4aa", color: "#0a1929", border: "none", borderRadius: "6px", padding: "10px 20px", fontSize: "13px", fontWeight: "600", cursor: "pointer", opacity: loading || !url || !ownerConfirmed ? 0.5 : 1 }}
         >
           {loading ? "Scan..." : "Lancer le scan"}
         </button>
@@ -122,6 +133,13 @@ export default function ScannerPage() {
 
         {error && <p style={{ marginTop: "12px", fontSize: "12px", color: "#ef4444", fontFamily: "monospace" }}>✗ Erreur: {error}</p>}
       </div>
+
+      {summary && (
+        <div style={{ background: "rgba(0,212,170,0.06)", border: "0.5px solid rgba(0,212,170,0.2)", borderRadius: "10px", padding: "16px 20px", marginBottom: "16px", display: "flex", gap: "12px", alignItems: "flex-start" }}>
+          <i className="ti ti-robot" style={{ fontSize: "16px", color: "#00d4aa", flexShrink: 0, marginTop: "2px" }}></i>
+          <p style={{ fontSize: "13px", color: "#e0f0f8", lineHeight: "1.7" }}>{summary}</p>
+        </div>
+      )}
 
       {result && (() => {
         const sc = scoreColor(result.score);
