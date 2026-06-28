@@ -65,7 +65,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <i className="ti ti-shield-check" style={{ fontSize: "16px", color: "#00d4aa" }}></i>
             <span style={{ fontSize: "14px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
           </Link>
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: "#5a8a9f", fontSize: "20px" }}>
+          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: "#e0f0f8", fontSize: "20px" }}>
             <i className={`ti ${menuOpen ? "ti-x" : "ti-menu-2"}`}></i>
           </button>
         </div>
