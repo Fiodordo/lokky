@@ -24,26 +24,29 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
 }
-.mobile-header {
-  display: none;
-}
 
-.desktop-sidebar {
-  display: flex;
-}
-
-@media (max-width: 768px) {
+@layer utilities {
   .mobile-header {
-    display: flex !important;
+    display: none;
   }
+
   .desktop-sidebar {
-    display: none !important;
+    display: flex;
   }
-  .desktop-main {
-    margin-left: 0 !important;
-    padding: 16px !important;
-  }
-  .desktop-layout {
-    display: block !important;
+
+  @media (max-width: 1024px) {
+    .mobile-header {
+      display: flex !important;
+    }
+    .desktop-sidebar {
+      display: none !important;
+    }
+    .desktop-main {
+      margin-left: 0 !important;
+      padding: 16px !important;
+    }
+    .desktop-layout {
+      display: block !important;
+    }
   }
 }
