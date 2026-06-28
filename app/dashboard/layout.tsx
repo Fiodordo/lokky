@@ -92,7 +92,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Desktop layout */}
       <div className="desktop-layout" style={{ display: "flex" }}>
-        <div className="desktop-sidebar" style={{ position: "fixed", height: "100vh", width: "220px", background: "#0a1929", borderRight: "0.5px solid #1a3a4a", display: "flex", flexDirection: "column" }}>
+        <div className="desktop-sidebar" style={{ position: "fixed", height: "100vh", width: "220px", background: "#0a1929", borderRight: "0.5px solid #1a3a4a",  flexDirection: "column" }}>
           <div style={{ padding: "20px 16px", borderBottom: "0.5px solid #1a3a4a" }}>
             <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
               <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
@@ -119,19 +119,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
           {children}
         </main>
       </div>
-
-      <style>{`
-        .mobile-header { display: none; }
-        .desktop-sidebar { display: flex !important; }
-        .desktop-main { margin-left: 220px !important; padding: 32px !important; }
-
-        @media (max-width: 768px) {
-          .mobile-header { display: flex !important; }
-          .desktop-sidebar { display: none !important; }
-          .desktop-main { margin-left: 0 !important; padding: 16px !important; }
-          .desktop-layout { display: block !important; }
-        }
-      `}</style>
 
     </div>
   );
