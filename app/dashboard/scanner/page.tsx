@@ -131,7 +131,16 @@ export default function ScannerPage() {
           </div>
         )}
 
-        {error && <p style={{ marginTop: "12px", fontSize: "12px", color: "#ef4444", fontFamily: "monospace" }}>✗ Erreur: {error}</p>}
+        {error && (
+          <div style={{ marginTop: "12px" }}>
+           <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "8px" }}>✗ {error}</p>
+          {error.includes("Limite atteinte") && (
+              <a href="/dashboard/upgrade" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#00d4aa", color: "#0a1929", padding: "8px 14px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", textDecoration: "none" }}>
+                  Upgrader mon plan →
+                  </a>
+                      )}
+                      </div>
+            )}
       </div>
 
       {summary && (

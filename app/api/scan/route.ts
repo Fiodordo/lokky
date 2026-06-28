@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import * as tls from "tls";
 import { createClient } from "@supabase/supabase-js";
 
+const PLAN_LIMITS = {
+  starter: 3,
+  builder: 50,
+  agence: Infinity,
+};
+
 function extractDomain(input: string): string | null {
   const trimmed = input.trim();
   if (!trimmed) return null;
@@ -49,12 +55,10 @@ async function checkSecurityHeaders(domain: string): Promise<{ headers: Record<s
   try {
     const res = await fetch(`https://${domain}`, { redirect: "follow" });
     const headers = res.headers;
-
     const setCookieHeader = headers.get("set-cookie");
     const found = !!setCookieHeader;
     const secure = found ? setCookieHeader!.toLowerCase().includes("secure") : false;
     const httpOnly = found ? setCookieHeader!.toLowerCase().includes("httponly") : false;
-
     return {
       headers: {
         "strict-transport-security": headers.has("strict-transport-security"),
@@ -80,7 +84,6 @@ async function checkSecurityHeaders(domain: string): Promise<{ headers: Record<s
 function computeScore(sslValid: boolean, httpsRedirect: boolean, headers: Record<string, boolean>, cookies: { secure: boolean; httpOnly: boolean; found: boolean }): string {
   let points = 0;
   const total = 7;
-
   if (sslValid) points += 2;
   if (httpsRedirect) points += 1;
   points += Object.values(headers).filter(Boolean).length * 0.75;
@@ -90,9 +93,7 @@ function computeScore(sslValid: boolean, httpsRedirect: boolean, headers: Record
   } else {
     points += 1;
   }
-
   const percentage = (points / total) * 100;
-
   if (percentage >= 90) return "A";
   if (percentage >= 75) return "B";
   if (percentage >= 60) return "C";
@@ -108,6 +109,32 @@ export async function POST(request: NextRequest) {
 
     if (!domain) {
       return NextResponse.json({ error: "URL invalide" }, { status: 400 });
+    }
+
+    if (userId && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
+      const supabase = createClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL,
+        process.env.SUPABASE_SERVICE_ROLE_KEY
+      );
+
+      const now = new Date();
+      const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
+
+      const { count } = await supabase
+        .from("scans")
+        .select("*", { count: "exact", head: true })
+        .eq("user_id", userId)
+        .gte("created_at", startOfMonth);
+
+      const userPlan = "starter";
+      const limit = PLAN_LIMITS[userPlan];
+
+      if ((count ?? 0) >= limit) {
+        return NextResponse.json({
+          error: `Limite atteinte — le plan Starter est limité à ${limit} scans par mois. Passez au plan Builder pour continuer.`,
+          limitReached: true,
+        }, { status: 403 });
+      }
     }
 
     const [sslResult, httpsRedirect, headersResult] = await Promise.all([
