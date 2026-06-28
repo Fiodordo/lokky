@@ -126,7 +126,13 @@ export async function POST(request: NextRequest) {
         .eq("user_id", userId)
         .gte("created_at", startOfMonth);
 
-      const userPlan = "starter";
+        const { data: subscription } = await supabase
+        .from("subscriptions")
+        .select("plan")
+        .eq("user_id", userId)
+        .single();
+
+      const userPlan = (subscription?.plan ?? "starter") as keyof typeof PLAN_LIMITS;
       const limit = PLAN_LIMITS[userPlan];
 
       if ((count ?? 0) >= limit) {
