@@ -20,6 +20,13 @@ const headerLabels: Record<string, string> = {
   "content-security-policy": "Protection contre les scripts malveillants",
 };
 
+const guideLinks: Record<string, string> = {
+  "ti-lock": "/dashboard/guides#ssl",
+  "ti-arrow-right": "/dashboard/guides#https",
+  "ti-shield": "/dashboard/guides#headers",
+  "ti-cookie": "/dashboard/guides#cookies",
+};
+
 const scoreColor = (s: string) => {
   if (s === "A" || s === "B") return { bg: "rgba(0,212,170,0.1)", color: "#00d4aa", border: "rgba(0,212,170,0.3)" };
   if (s === "C") return { bg: "rgba(245,158,11,0.1)", color: "#f59e0b", border: "rgba(245,158,11,0.3)" };
@@ -133,14 +140,14 @@ export default function ScannerPage() {
 
         {error && (
           <div style={{ marginTop: "12px" }}>
-           <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "8px" }}>✗ {error}</p>
-          {error.includes("Limite atteinte") && (
+            <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "8px" }}>✗ {error}</p>
+            {error.includes("Limite atteinte") && (
               <a href="/dashboard/upgrade" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#00d4aa", color: "#0a1929", padding: "8px 14px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", textDecoration: "none" }}>
-                  Upgrader mon plan →
-                  </a>
-                      )}
-                      </div>
+                Upgrader mon plan →
+              </a>
             )}
+          </div>
+        )}
       </div>
 
       {summary && (
@@ -182,7 +189,14 @@ export default function ScannerPage() {
                       {item.sub && <p style={{ fontSize: "10px", color: "#5a8a9f" }}>{item.sub}</p>}
                     </div>
                   </div>
-                  <Check ok={item.ok} />
+                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                    <Check ok={item.ok} />
+                    {!item.ok && (
+                      <a href={guideLinks[item.icon] ?? "/dashboard/guides"} style={{ fontSize: "10px", color: "#00d4aa", textDecoration: "none", whiteSpace: "nowrap" }}>
+                        → Guide
+                      </a>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>
