@@ -18,7 +18,7 @@ export default function SettingsPage() {
 
   async function handlePasswordReset() {
     setLoading(true);
-    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: "https://lokky-mu.vercel.app/reset-password" });
+    const { error } = await supabase.auth.resetPasswordForEmail(email, { redirectTo: `${window.location.origin}/reset-password`});
     if (error) setMessage("Erreur : " + error.message);
     else setMessage("Email de réinitialisation envoyé !");
     setLoading(false);
