@@ -90,10 +90,16 @@ export default function LoginPage() {
           </button>
         </form>
 
-        <p style={{ fontSize: "12px", color: "#5a8a9f", textAlign: "center", marginTop: "20px" }}>
-          Pas encore de compte ?{" "}
-          <Link href="/register" style={{ color: "#00d4aa", textDecoration: "none" }}>Créer un compte</Link>
-        </p>
+        <div style={{ marginTop: "20px", display: "flex", flexDirection: "column", gap: "8px", textAlign: "center" }}>
+  <p style={{ fontSize: "12px", color: "#5a8a9f" }}>
+    Pas encore de compte ?{" "}
+    <Link href="/register" style={{ color: "#00d4aa", textDecoration: "none" }}>Créer un compte</Link>
+  </p>
+  <p style={{ fontSize: "12px", color: "#5a8a9f" }}>
+    Mot de passe oublié ?{" "}
+    <Link href="/forgot-password" style={{ color: "#00d4aa", textDecoration: "none" }}>Réinitialiser</Link>
+  </p>
+</div>
       </div>
     </div>
   );
