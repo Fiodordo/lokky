@@ -1,4 +1,5 @@
 import Link from "next/link";
+import PublicScanner from "@/components/PublicScanner";
 
 export default function Home() {
   return (
@@ -16,8 +17,8 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Hero */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center" }}>
+     {/* Hero */}
+     <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(168,85,247,0.1)", border: "0.5px solid rgba(168,85,247,0.3)", borderRadius: "20px", padding: "5px 14px", marginBottom: "32px" }}>
           <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a855f7" }}></div>
           <span style={{ fontSize: "11px", color: "#c084fc" }}>Sécurité simplifiée pour makers et créateurs</span>
@@ -28,12 +29,12 @@ export default function Home() {
           <span style={{ color: "#a855f7", fontStyle: "italic" }}>tout faire perdre.</span>
         </h1>
 
-        <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "16px", maxWidth: "520px", margin: "0 auto 16px" }}>
-          Quand votre site n'est pas sécurisé, Chrome affiche un message d'alerte rouge. Vos visiteurs partent. Vos ventes s'arrêtent.
-        </p>
         <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "48px", maxWidth: "520px", margin: "0 auto 48px" }}>
           Lokky vérifie votre site en 5 secondes et vous dit exactement quoi corriger — sans jargon technique.
         </p>
+
+        <PublicScanner />
+      </section>
 
         {/* Terminal */}
         <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "20px", maxWidth: "500px", margin: "0 auto 32px", textAlign: "left" }}>
@@ -49,12 +50,8 @@ export default function Home() {
           <p style={{ fontSize: "12px", color: "#f59e0b", fontFamily: "monospace" }}>⚠ Les données de vos clients peuvent être volées</p>
         </div>
 
-        <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "14px", fontWeight: "600", padding: "14px 32px", borderRadius: "8px", textDecoration: "none" }}>
-          <i className="ti ti-search" style={{ fontSize: "15px" }}></i>
-          Vérifier mon site gratuitement
-        </Link>
-        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "12px" }}>Sans carte bancaire • Résultat en 5 secondes • 100% gratuit</p>
-      </section>
+
+    
 
       {/* Stats */}
       <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", borderBottom: "0.5px solid rgba(168,85,247,0.15)", padding: "28px 40px" }}>
