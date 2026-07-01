@@ -2,105 +2,142 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <div style={{ minHeight: "100vh", background: "#0a1929", fontFamily: "var(--font-sans)" }}>
+    <div style={{ minHeight: "100vh", background: "#080010", fontFamily: "var(--font-sans)" }}>
 
       {/* Header */}
-      <header style={{ borderBottom: "0.5px solid #1a3a4a", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#0a1929", zIndex: 10 }}>
+      <header style={{ borderBottom: "0.5px solid rgba(168,85,247,0.2)", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "#080010", zIndex: 10 }}>
         <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
-          <span style={{ fontSize: "16px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
+          <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
+          <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <Link href="/login" style={{ fontSize: "13px", color: "#5a8a9f", textDecoration: "none" }}>Connexion</Link>
-          <Link href="/register" style={{ background: "#00d4aa", color: "#0a1929", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Essai gratuit</Link>
+          <Link href="/login" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Connexion</Link>
+          <Link href="/register" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Essai gratuit</Link>
         </div>
       </header>
 
       {/* Hero */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "100px 40px 80px", textAlign: "center" }}>
-        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(0,212,170,0.08)", border: "0.5px solid rgba(0,212,170,0.2)", borderRadius: "20px", padding: "5px 14px", marginBottom: "24px" }}>
-          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#00d4aa" }}></div>
-          <span style={{ fontSize: "11px", color: "#00d4aa" }}>Sécurité simplifiée pour makers & créateurs de SaaS</span>
+      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center" }}>
+        <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(168,85,247,0.1)", border: "0.5px solid rgba(168,85,247,0.3)", borderRadius: "20px", padding: "5px 14px", marginBottom: "32px" }}>
+          <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a855f7" }}></div>
+          <span style={{ fontSize: "11px", color: "#c084fc" }}>Sécurité simplifiée pour makers et créateurs</span>
         </div>
-        <h1 style={{ fontSize: "52px", fontWeight: "500", color: "#e0f0f8", lineHeight: "1.15", marginBottom: "20px" }}>
-          Votre projet est-il<br /><span style={{ color: "#00d4aa" }}>vraiment sécurisé ?</span>
+
+        <h1 style={{ fontSize: "58px", fontWeight: "500", color: "#fff", lineHeight: "1.1", marginBottom: "24px" }}>
+          Une faille peut<br />
+          <span style={{ color: "#a855f7", fontStyle: "italic" }}>tout faire perdre.</span>
         </h1>
-        <p style={{ fontSize: "16px", color: "#5a8a9f", lineHeight: "1.7", marginBottom: "40px", maxWidth: "540px", margin: "0 auto 40px" }}>
-          Lokky scanne votre site ou application en quelques secondes — SSL, headers, cookies — et détecte les failles avant que vos clients ne les trouvent.
+
+        <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "16px", maxWidth: "520px", margin: "0 auto 16px" }}>
+          Quand votre site n'est pas sécurisé, Chrome affiche un message d'alerte rouge. Vos visiteurs partent. Vos ventes s'arrêtent.
         </p>
-        <div style={{ background: "#0d1f2d", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "16px 20px", maxWidth: "480px", margin: "0 auto 24px", textAlign: "left" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "12px" }}>
+        <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "48px", maxWidth: "520px", margin: "0 auto 48px" }}>
+          Lokky vérifie votre site en 5 secondes et vous dit exactement quoi corriger — sans jargon technique.
+        </p>
+
+        {/* Terminal */}
+        <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "20px", maxWidth: "500px", margin: "0 auto 32px", textAlign: "left" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "14px" }}>
             <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
             <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d4aa" }}></div>
+            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#a855f7" }}></div>
+            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginLeft: "8px", fontFamily: "monospace" }}>lokky — scanner</span>
           </div>
-          <p style={{ fontSize: "12px", color: "#5a8a9f", fontFamily: "monospace", marginBottom: "6px" }}>$ lokky scan --target monprojet.com</p>
-          <p style={{ fontSize: "12px", color: "#00d4aa", fontFamily: "monospace", marginBottom: "2px" }}>✓ SSL valide — expire dans 120 jours</p>
-          <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "2px" }}>✗ Headers de sécurité manquants</p>
-          <p style={{ fontSize: "12px", color: "#f59e0b", fontFamily: "monospace" }}>⚠ Cookie non sécurisé détecté</p>
+          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace", marginBottom: "10px" }}>$ lokky scan --target monprojet.com</p>
+          <p style={{ fontSize: "12px", color: "#a855f7", fontFamily: "monospace", marginBottom: "4px" }}>✓ Votre site est bien chiffré</p>
+          <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "4px" }}>✗ Votre site peut être bloqué par Chrome</p>
+          <p style={{ fontSize: "12px", color: "#f59e0b", fontFamily: "monospace" }}>⚠ Les données de vos clients peuvent être volées</p>
         </div>
-        <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#00d4aa", color: "#0a1929", fontSize: "14px", fontWeight: "600", padding: "14px 28px", borderRadius: "8px", textDecoration: "none" }}>
-          Scanner mon projet gratuitement
+
+        <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "14px", fontWeight: "600", padding: "14px 32px", borderRadius: "8px", textDecoration: "none" }}>
+          <i className="ti ti-search" style={{ fontSize: "15px" }}></i>
+          Vérifier mon site gratuitement
         </Link>
-        <p style={{ fontSize: "11px", color: "#5a8a9f", marginTop: "10px" }}>Sans carte bancaire • Résultat en 5 secondes</p>
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "12px" }}>Sans carte bancaire • Résultat en 5 secondes • 100% gratuit</p>
       </section>
 
       {/* Stats */}
-      <section style={{ borderTop: "0.5px solid #1a3a4a", borderBottom: "0.5px solid #1a3a4a", padding: "24px 40px" }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", justifyContent: "center", gap: "60px" }}>
+      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", borderBottom: "0.5px solid rgba(168,85,247,0.15)", padding: "28px 40px" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", justifyContent: "center", gap: "80px" }}>
           {[
-            { value: "500+", label: "Projets scannés" },
-            { value: "3s", label: "Temps de scan moyen" },
+            { value: "500+", label: "Sites vérifiés" },
+            { value: "5s", label: "Temps de vérification" },
             { value: "100%", label: "Gratuit pour commencer" },
           ].map((stat) => (
             <div key={stat.label} style={{ textAlign: "center" }}>
-              <p style={{ fontSize: "22px", fontWeight: "700", color: "#00d4aa" }}>{stat.value}</p>
-              <p style={{ fontSize: "11px", color: "#5a8a9f", marginTop: "2px" }}>{stat.label}</p>
+              <p style={{ fontSize: "28px", fontWeight: "500", color: "#a855f7" }}>{stat.value}</p>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>{stat.label}</p>
             </div>
           ))}
         </div>
       </section>
 
       {/* Problèmes */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "80px 40px" }}>
-        <div style={{ textAlign: "center", marginBottom: "48px" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: "500", color: "#e0f0f8", marginBottom: "10px" }}>Construire vite, c'est bien.<br />Sécuriser aussi.</h2>
-          <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Avec le vibe coding et le no-code, on lance vite — souvent trop vite pour penser à la sécurité</p>
+      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "100px 40px" }}>
+        <div style={{ textAlign: "center", marginBottom: "56px" }}>
+          <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>
+            Ce qui arrive quand votre<br />site n'est pas sécurisé
+          </h2>
+          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Des problèmes concrets qui coûtent de l'argent</p>
         </div>
         <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
           {[
-            { icon: "ti-robot", title: "Code généré par IA", desc: "L'IA va vite, mais ne pense pas toujours à la sécurité par défaut", color: "#ef4444" },
-            { icon: "ti-lock-open", title: "Données exposées", desc: "Une mauvaise config peut exposer les données de vos utilisateurs sans que vous le sachiez", color: "#f59e0b" },
-            { icon: "ti-trending-down", title: "Confiance perdue", desc: "Une faille découverte par un utilisateur peut couler la réputation de votre projet", color: "#ef4444" },
+            { icon: "ti-alert-triangle", title: "Alerte rouge sur votre site", desc: "Chrome et Firefox bloquent votre site et affichent \"Ce site n'est pas sécurisé\". Vos visiteurs partent immédiatement.", color: "#ef4444" },
+            { icon: "ti-lock-open", title: "Données clients exposées", desc: "Sans protection, les informations que vos clients saisissent sur votre site peuvent être interceptées.", color: "#f59e0b" },
+            { icon: "ti-trending-down", title: "Ventes perdues", desc: "85% des visiteurs quittent un site non sécurisé avant même d'avoir vu votre offre.", color: "#a855f7" },
           ].map((item) => (
-            <div key={item.title} style={{ background: "#0d1f2d", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "20px" }}>
-              <i className={`ti ${item.icon}`} style={{ fontSize: "20px", color: item.color, display: "block", marginBottom: "12px" }}></i>
-              <p style={{ fontSize: "13px", fontWeight: "500", color: "#e0f0f8", marginBottom: "8px" }}>{item.title}</p>
-              <p style={{ fontSize: "12px", color: "#5a8a9f", lineHeight: "1.6" }}>{item.desc}</p>
+            <div key={item.title} style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px" }}>
+              <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: item.color, display: "block", marginBottom: "14px" }}></i>
+              <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "10px" }}>{item.title}</p>
+              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* Features */}
-      <section style={{ borderTop: "0.5px solid #1a3a4a", padding: "80px 40px" }}>
+      {/* Comment ça marche */}
+      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "500", color: "#e0f0f8", marginBottom: "10px" }}>Tout ce dont vous avez besoin</h2>
-            <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Simple, rapide, pensé pour les non-experts en sécurité</p>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Comment ça marche ?</h2>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>3 étapes, 5 secondes</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
+            {[
+              { step: "01", title: "Entrez votre adresse", desc: "Tapez l'adresse de votre site. Rien à installer.", icon: "ti-world" },
+              { step: "02", title: "Lokky analyse tout", desc: "En 5 secondes, tous les points de sécurité sont vérifiés.", icon: "ti-search" },
+              { step: "03", title: "Recevez votre rapport", desc: "Score A à F et instructions claires pour corriger.", icon: "ti-shield-check" },
+            ].map((item) => (
+              <div key={item.step} style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", textAlign: "center" }}>
+                <p style={{ fontSize: "32px", fontWeight: "500", color: "rgba(168,85,247,0.3)", marginBottom: "12px", fontFamily: "monospace" }}>{item.step}</p>
+                <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: "#a855f7", display: "block", marginBottom: "12px" }}></i>
+                <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.title}</p>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Features */}
+      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
+        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Tout ce que Lokky vérifie</h2>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Sans jargon — juste ce que ça veut dire pour votre business</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
             {[
-              { icon: "ti-search", title: "Scan complet instantané", desc: "SSL, headers de sécurité, cookies, redirection HTTPS — tout vérifié en quelques secondes" },
-              { icon: "ti-shield-check", title: "Score clair A à F", desc: "Comprenez immédiatement votre niveau de sécurité, sans jargon technique" },
-              { icon: "ti-bell", title: "Alertes email automatiques", desc: "Recevez un email 7 jours avant que votre certificat SSL expire" },
-              { icon: "ti-book", title: "Guides de correction", desc: "Des instructions claires par plateforme pour corriger chaque faille détectée" },
+              { icon: "ti-lock", title: "Votre site est-il chiffré ?", desc: "On vérifie que la connexion entre vos visiteurs et votre site est sécurisée. Sans ça, Chrome affiche une alerte rouge." },
+              { icon: "ti-shield-check", title: "Vos données sont-elles protégées ?", desc: "On vérifie que votre site bloque les attaques les plus courantes qui permettent de voler les données de vos clients." },
+              { icon: "ti-bell", title: "Alertes avant que ça expire", desc: "Recevez un email 7 jours avant que votre protection expire — vous ne serez jamais pris par surprise." },
+              { icon: "ti-book", title: "Comment corriger ?", desc: "Pour chaque problème, Lokky vous donne les étapes exactes selon votre type de site (Shopify, WordPress, Vercel...)." },
             ].map((item) => (
-              <div key={item.title} style={{ display: "flex", gap: "16px", background: "#0d1f2d", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "20px" }}>
-                <i className={`ti ${item.icon}`} style={{ fontSize: "20px", color: "#00d4aa", flexShrink: 0, marginTop: "2px" }}></i>
+              <div key={item.title} style={{ display: "flex", gap: "16px", background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px" }}>
+                <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: "#a855f7", flexShrink: 0, marginTop: "2px" }}></i>
                 <div>
-                  <p style={{ fontSize: "13px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>{item.title}</p>
-                  <p style={{ fontSize: "12px", color: "#5a8a9f", lineHeight: "1.6" }}>{item.desc}</p>
+                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.title}</p>
+                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -109,34 +146,34 @@ export default function Home() {
       </section>
 
       {/* Pricing */}
-      <section style={{ borderTop: "0.5px solid #1a3a4a", padding: "80px 40px" }}>
+      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <div style={{ textAlign: "center", marginBottom: "48px" }}>
-            <h2 style={{ fontSize: "28px", fontWeight: "500", color: "#e0f0f8", marginBottom: "10px" }}>Tarifs simples et transparents</h2>
-            <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Commencez gratuitement, évoluez selon vos besoins</p>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Tarifs simples</h2>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Commencez gratuitement — évoluez selon vos besoins</p>
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
             {[
-              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["1 projet", "Scan manuel", "Score de sécurité"] },
-              { name: "Builder", price: "29€/mois", desc: "Pour les makers actifs", features: ["5 projets", "Scan hebdomadaire", "Alertes email", "Historique complet"], highlight: true },
-              { name: "Agence", price: "99€/mois", desc: "Pour les pros", features: ["Projets illimités", "Scan quotidien", "Rapports exportables", "Support prioritaire"] },
+              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["3 vérifications/mois", "Rapport complet", "Score A à F", "Guides de correction"], cta: "Commencer gratuitement" },
+              { name: "Builder", price: "29€/mois", desc: "Pour les makers actifs", features: ["50 vérifications/mois", "Alertes email auto", "Historique complet", "Guides par plateforme"], highlight: true, cta: "Choisir Builder" },
+              { name: "Agence", price: "99€/mois", desc: "Pour les pros", features: ["Vérifications illimitées", "Scan quotidien auto", "Rapports exportables", "Support prioritaire"], cta: "Choisir Agence" },
             ].map((plan) => (
-              <div key={plan.name} style={{ background: plan.highlight ? "rgba(0,212,170,0.05)" : "#0d1f2d", border: plan.highlight ? "0.5px solid rgba(0,212,170,0.4)" : "0.5px solid #1a3a4a", borderRadius: "12px", padding: "24px", position: "relative" }}>
+              <div key={plan.name} style={{ background: plan.highlight ? "rgba(168,85,247,0.1)" : "#0d0018", border: plan.highlight ? "2px solid #a855f7" : "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", position: "relative" }}>
                 {plan.highlight && (
-                  <div style={{ position: "absolute", top: "-10px", left: "50%", transform: "translateX(-50%)", background: "#00d4aa", color: "#0a1929", fontSize: "10px", fontWeight: "700", padding: "3px 12px", borderRadius: "20px", whiteSpace: "nowrap" }}>Recommandé</div>
+                  <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "10px", fontWeight: "700", padding: "3px 12px", borderRadius: "20px", whiteSpace: "nowrap" }}>Le plus populaire</div>
                 )}
-                <p style={{ fontSize: "14px", fontWeight: "500", color: plan.highlight ? "#00d4aa" : "#e0f0f8", marginBottom: "4px" }}>{plan.name}</p>
-                <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "16px" }}>{plan.desc}</p>
-                <p style={{ fontSize: "24px", fontWeight: "700", color: "#e0f0f8", marginBottom: "20px" }}>{plan.price}</p>
+                <p style={{ fontSize: "14px", fontWeight: "500", color: plan.highlight ? "#c084fc" : "#fff", marginBottom: "4px" }}>{plan.name}</p>
+                <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginBottom: "16px" }}>{plan.desc}</p>
+                <p style={{ fontSize: "26px", fontWeight: "500", color: "#fff", marginBottom: "20px" }}>{plan.price}</p>
                 <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
                   {plan.features.map((f) => (
-                    <li key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "#5a8a9f" }}>
-                      <i className="ti ti-check" style={{ fontSize: "12px", color: "#00d4aa" }}></i>{f}
+                    <li key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
+                      <i className="ti ti-check" style={{ fontSize: "12px", color: "#a855f7" }}></i>{f}
                     </li>
                   ))}
                 </ul>
-                <Link href="/register" style={{ display: "block", textAlign: "center", background: plan.highlight ? "#00d4aa" : "transparent", color: plan.highlight ? "#0a1929" : "#e0f0f8", border: plan.highlight ? "none" : "0.5px solid #1a3a4a", borderRadius: "6px", padding: "10px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
-                  Commencer
+                <Link href="/register" style={{ display: "block", textAlign: "center", background: plan.highlight ? "linear-gradient(135deg, #a855f7, #6366f1)" : "transparent", color: "#fff", border: plan.highlight ? "none" : "0.5px solid rgba(168,85,247,0.3)", borderRadius: "6px", padding: "10px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
+                  {plan.cta}
                 </Link>
               </div>
             ))}
@@ -144,25 +181,53 @@ export default function Home() {
         </div>
       </section>
 
+      {/* FAQ */}
+      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
+        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
+          <div style={{ textAlign: "center", marginBottom: "56px" }}>
+            <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff" }}>Questions fréquentes</h2>
+          </div>
+          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+            {[
+              { q: "Est-ce que je dois être développeur ?", a: "Non ! Lokky est fait pour les créateurs et entrepreneurs. Tout est expliqué en français simple, sans jargon technique." },
+              { q: "Est-ce que Lokky accède à mon site ?", a: "Non. Lokky analyse uniquement les informations publiques de votre site — celles que n'importe quel visiteur peut voir." },
+              { q: "Combien de temps prend une vérification ?", a: "Entre 3 et 10 secondes. Vous recevez votre rapport immédiatement après." },
+              { q: "Que faire si mon score est mauvais ?", a: "Lokky vous donne les étapes exactes pour corriger chaque problème, adaptées à votre type de site." },
+            ].map((item, i) => (
+              <div key={i} style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "10px", padding: "20px 24px" }}>
+                <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.q}</p>
+                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.a}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* CTA Final */}
-      <section style={{ borderTop: "0.5px solid #1a3a4a", padding: "80px 40px", textAlign: "center" }}>
+      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "120px 40px", textAlign: "center" }}>
         <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-          <h2 style={{ fontSize: "28px", fontWeight: "500", color: "#e0f0f8", marginBottom: "10px" }}>Prêt à sécuriser votre projet ?</h2>
-          <p style={{ fontSize: "13px", color: "#5a8a9f", marginBottom: "28px" }}>Rejoignez les makers et créateurs de SaaS qui protègent leur travail avec Lokky</p>
-          <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#00d4aa", color: "#0a1929", fontSize: "14px", fontWeight: "600", padding: "14px 28px", borderRadius: "8px", textDecoration: "none" }}>
-            Scanner mon projet gratuitement
+          <h2 style={{ fontSize: "40px", fontWeight: "500", color: "#fff", marginBottom: "12px", lineHeight: "1.2" }}>
+            Votre site est-il<br /><span style={{ color: "#a855f7", fontStyle: "italic" }}>vraiment protégé ?</span>
+          </h2>
+          <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)", marginBottom: "32px" }}>
+            Vérifiez maintenant gratuitement — résultat en 5 secondes.
+          </p>
+          <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "14px", fontWeight: "600", padding: "16px 36px", borderRadius: "8px", textDecoration: "none" }}>
+            <i className="ti ti-search" style={{ fontSize: "15px" }}></i>
+            Vérifier mon site gratuitement
           </Link>
+          <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "12px" }}>Sans carte bancaire • Sans inscription • 100% gratuit</p>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ borderTop: "0.5px solid #1a3a4a", padding: "20px 40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "14px", color: "#00d4aa" }}></i>
-          <span style={{ fontSize: "12px", color: "#5a8a9f" }}>LOKKY</span>
+      <footer style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "24px 40px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <i className="ti ti-shield-check" style={{ fontSize: "14px", color: "#a855f7" }}></i>
+          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>LOKKY</span>
         </div>
-        <p style={{ fontSize: "11px", color: "#5a8a9f" }}>© 2026 Lokky — Sécurité simplifiée pour makers et créateurs</p>
-        <Link href="/pricing" style={{ fontSize: "12px", color: "#5a8a9f", textDecoration: "none" }}>Tarifs</Link>
+        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>© 2026 Lokky — Sécurité simplifiée pour tous</p>
+        <Link href="/pricing" style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Tarifs</Link>
       </footer>
 
     </div>
