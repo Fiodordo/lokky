@@ -39,9 +39,9 @@ export default function FloatingReview() {
     <div style={{
       position: "fixed",
       bottom: "24px",
-      left: "24px",
+      right: "24px",
       zIndex: 50,
-      maxWidth: "300px",
+      maxWidth: "400px",
       background: "#fff",
       borderRadius: "12px",
       padding: "16px",
