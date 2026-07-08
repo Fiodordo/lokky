@@ -141,7 +141,38 @@ export default function Home() {
           </div>
         </div>
       </section>
-
+        {/* Avis */}
+        <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
+          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
+            <div style={{ textAlign: "center", marginBottom: "56px" }}>
+              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Ce qu'ils en pensent</h2>
+            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Des makers qui ont testé Lokky</p>
+          </div>
+          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
+            {[
+              {
+                quote: "J'ai scanné mon site avec Lokky et j'ai découvert des failles que j'avais complètement ignorées. Simple à utiliser et les guides de correction sont vraiment clairs.",
+                name: "Fondateur",
+                company: "govibecoding.ai",
+              },
+            ].map((avis, i) => (
+              <div key={i} style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "24px" }}>
+                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: "1.8", marginBottom: "20px", fontStyle: "italic" }}>"{avis.quote}"</p>
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(168,85,247,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                      <i className="ti ti-user" style={{ fontSize: "16px", color: "#a855f7" }}></i>
+                  </div>
+                  <div>
+                   <p style={{ fontSize: "13px", fontWeight: "500", color: "#fff", margin: 0 }}>{avis.name}</p>
+                    <p style={{ fontSize: "11px", color: "#a855f7", margin: 0 }}>{avis.company}</p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+          </div>
       {/* Pricing */}
       <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
