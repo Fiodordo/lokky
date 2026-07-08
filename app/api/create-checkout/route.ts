@@ -2,15 +2,13 @@ import { NextRequest, NextResponse } from "next/server";
 import Stripe from "stripe";
 
 const PLANS = {
-  builder: {
-    name: "Lokky Builder",
-    amount: 2900,
-    interval: "month" as const,
+  pro: {
+    name: "Lokky Pro",
+    priceId: "price_1TlGMePsepNfoqv3hHoS2FlN",
   },
   agence: {
     name: "Lokky Agence",
-    amount: 9900,
-    interval: "month" as const,
+    priceId: "price_1TlGNuPsepNfoqv3L1RoJhpS",
   },
 };
 
@@ -33,12 +31,7 @@ export async function POST(request: NextRequest) {
       metadata: { userId, plan },
       line_items: [
         {
-          price_data: {
-            currency: "eur",
-            product_data: { name: selectedPlan.name },
-            recurring: { interval: selectedPlan.interval },
-            unit_amount: selectedPlan.amount,
-          },
+          price: selectedPlan.priceId,
           quantity: 1,
         },
       ],
