@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
+import Link from "next/link";
 
 type ScanResult = {
   domain: string;
@@ -11,6 +12,7 @@ type ScanResult = {
   securityHeaders: Record<string, boolean>;
   cookies: { secure: boolean; httpOnly: boolean; found: boolean };
   score: string;
+  scanId: string | null;
 };
 
 const headerLabels: Record<string, string> = {
@@ -41,6 +43,7 @@ export default function ScannerPage() {
   const [error, setError] = useState("");
   const [ownerConfirmed, setOwnerConfirmed] = useState(false);
   const [summary, setSummary] = useState<string | null>(null);
+  const [copied, setCopied] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
@@ -53,6 +56,7 @@ export default function ScannerPage() {
     setError("");
     setResult(null);
     setSummary(null);
+    setCopied(false);
     try {
       const res = await fetch("/api/scan", {
         method: "POST",
@@ -76,6 +80,14 @@ export default function ScannerPage() {
       setError("Erreur lors du scan");
     } finally {
       setLoading(false);
+    }
+  }
+
+  function copyLink() {
+    if (result?.scanId) {
+      navigator.clipboard.writeText(`${window.location.origin}/report/${result.scanId}`);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
     }
   }
 
@@ -142,9 +154,9 @@ export default function ScannerPage() {
           <div style={{ marginTop: "12px" }}>
             <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "8px" }}>✗ {error}</p>
             {error.includes("Limite atteinte") && (
-              <a href="/dashboard/upgrade" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#00d4aa", color: "#0a1929", padding: "8px 14px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", textDecoration: "none" }}>
+              <Link href="/dashboard/upgrade" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "#00d4aa", color: "#0a1929", padding: "8px 14px", borderRadius: "6px", fontSize: "12px", fontWeight: "600", textDecoration: "none" }}>
                 Upgrader mon plan →
-              </a>
+              </Link>
             )}
           </div>
         )}
@@ -171,6 +183,7 @@ export default function ScannerPage() {
                 <p style={{ fontSize: "9px", color: sc.color, marginTop: "2px" }}>Score</p>
               </div>
             </div>
+
             <div style={{ padding: "20px 24px", display: "grid", gap: "10px" }}>
               {[
                 { icon: "ti-lock", label: "Certificat SSL", ok: result.sslValid, sub: result.expiresAt ? `Expire le ${new Date(result.expiresAt).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" })}` : undefined },
@@ -192,14 +205,28 @@ export default function ScannerPage() {
                   <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                     <Check ok={item.ok} />
                     {!item.ok && (
-                      <a href={guideLinks[item.icon] ?? "/dashboard/guides"} style={{ fontSize: "10px", color: "#00d4aa", textDecoration: "none", whiteSpace: "nowrap" }}>
-                        → Guide
-                      </a>
+                      <a href={guideLinks[item.icon] ?? "/dashboard/guides"} style={{ fontSize: "10px", color: "#00d4aa", textDecoration: "none", whiteSpace: "nowrap" }}>→ Guide</a>
                     )}
                   </div>
                 </div>
               ))}
             </div>
+
+            {/* Lien partageable */}
+            {result.scanId && (
+              <div style={{ padding: "16px 24px", borderTop: "0.5px solid #1a3a4a", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "4px" }}>Lien partageable</p>
+                  <p style={{ fontSize: "12px", color: "#e0f0f8", fontFamily: "monospace" }}>{window.location.origin}/report/{result.scanId}</p>
+                </div>
+                <button
+                  onClick={copyLink}
+                  style={{ background: copied ? "rgba(0,212,170,0.1)" : "transparent", border: "0.5px solid #1a3a4a", color: copied ? "#00d4aa" : "#5a8a9f", borderRadius: "6px", padding: "8px 14px", fontSize: "12px", cursor: "pointer" }}
+                >
+                  {copied ? "✓ Copié !" : "Copier le lien"}
+                </button>
+              </div>
+            )}
           </div>
         );
       })()}

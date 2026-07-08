@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import * as tls from "tls";
 import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
 
 const PLAN_LIMITS = {
   starter: 3,
@@ -25,18 +27,13 @@ function checkSsl(domain: string): Promise<{ valid: boolean; expiresAt: string |
     const socket = tls.connect(443, domain, { servername: domain, rejectUnauthorized: false }, () => {
       const cert = socket.getPeerCertificate();
       socket.destroy();
-      if (!cert || !cert.valid_to) {
-        return resolve({ valid: false, expiresAt: null, issuer: null });
-      }
+      if (!cert || !cert.valid_to) return resolve({ valid: false, expiresAt: null, issuer: null });
       const expiresAt = new Date(cert.valid_to);
       const valid = expiresAt > new Date();
       const issuer = Array.isArray(cert.issuer?.O) ? cert.issuer.O[0] : (cert.issuer?.O ?? null);
       resolve({ valid, expiresAt: expiresAt.toISOString(), issuer });
     });
-    socket.setTimeout(10000, () => {
-      socket.destroy();
-      reject(new Error("Timeout SSL"));
-    });
+    socket.setTimeout(10000, () => { socket.destroy(); reject(new Error("Timeout SSL")); });
     socket.on("error", reject);
   });
 }
@@ -46,9 +43,7 @@ async function checkHttpsRedirect(domain: string): Promise<boolean> {
     const res = await fetch(`http://${domain}`, { redirect: "manual" });
     const location = res.headers.get("location");
     return res.status >= 300 && res.status < 400 && !!location && location.startsWith("https://");
-  } catch {
-    return false;
-  }
+  } catch { return false; }
 }
 
 async function checkSecurityHeaders(domain: string): Promise<{ headers: Record<string, boolean>; cookies: { secure: boolean; httpOnly: boolean; found: boolean } }> {
@@ -90,9 +85,7 @@ function computeScore(sslValid: boolean, httpsRedirect: boolean, headers: Record
   if (cookies.found) {
     if (cookies.secure) points += 0.5;
     if (cookies.httpOnly) points += 0.5;
-  } else {
-    points += 1;
-  }
+  } else { points += 1; }
   const percentage = (points / total) * 100;
   if (percentage >= 90) return "A";
   if (percentage >= 75) return "B";
@@ -105,18 +98,36 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const domain = extractDomain(body.url ?? "");
-    const userId = body.userId ?? null;
 
     if (!domain) {
       return NextResponse.json({ error: "URL invalide" }, { status: 400 });
     }
 
-    if (userId && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
+    const cookieStore = await cookies();
+    const supabaseAuth = createServerClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        cookies: {
+          getAll() { return cookieStore.getAll(); },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              cookieStore.set(name, value, options);
+            });
+          },
+        },
+      }
+    );
 
+    const { data: { user } } = await supabaseAuth.auth.getUser();
+    const userId = user?.id ?? null;
+
+    const supabase = createClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.SUPABASE_SERVICE_ROLE_KEY!
+    );
+
+    if (userId) {
       const now = new Date();
       const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1).toISOString();
 
@@ -126,7 +137,7 @@ export async function POST(request: NextRequest) {
         .eq("user_id", userId)
         .gte("created_at", startOfMonth);
 
-        const { data: subscription } = await supabase
+      const { data: subscription } = await supabase
         .from("subscriptions")
         .select("plan")
         .eq("user_id", userId)
@@ -151,35 +162,36 @@ export async function POST(request: NextRequest) {
 
     const score = computeScore(sslResult.valid, httpsRedirect, headersResult.headers, headersResult.cookies);
 
-    let insertError = null;
-    if (userId && process.env.NEXT_PUBLIC_SUPABASE_URL && process.env.SUPABASE_SERVICE_ROLE_KEY) {
-      const supabase = createClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL,
-        process.env.SUPABASE_SERVICE_ROLE_KEY
-      );
-      const { error } = await supabase.from("scans").insert({
-        user_id: userId,
-        domain,
-        ssl_valid: sslResult.valid,
-        expires_at: sslResult.expiresAt,
-        https_redirect: httpsRedirect,
-        security_headers: headersResult.headers,
-        score,
-      });
-      if (error) insertError = error.message;
+    let scanId = null;
+    if (userId) {
+      const { data: insertedScan } = await supabase
+        .from("scans")
+        .insert({
+          user_id: userId,
+          domain,
+          ssl_valid: sslResult.valid,
+          expires_at: sslResult.expiresAt,
+          https_redirect: httpsRedirect,
+          security_headers: headersResult.headers,
+          score,
+        })
+        .select("id")
+        .single();
+
+      scanId = insertedScan?.id ?? null;
     }
 
     return NextResponse.json({
       domain,
       sslValid: sslResult.valid,
       expiresAt: sslResult.expiresAt,
-      issuer: sslResult.issuer,
       httpsRedirect,
       securityHeaders: headersResult.headers,
       cookies: headersResult.cookies,
       score,
-      insertError,
+      scanId,
     });
+
   } catch (error) {
     const message = error instanceof Error ? error.message : "Erreur scan";
     return NextResponse.json({ error: message }, { status: 500 });
