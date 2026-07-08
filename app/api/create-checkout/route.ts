@@ -4,11 +4,11 @@ import Stripe from "stripe";
 const PLANS = {
   pro: {
     name: "Lokky Pro",
-    priceId: "price_1TlGMePsepNfoqv3hHoS2FlN",
+    priceId: "price_1Tqmg9LhTum4lL15KVwAW30v",
   },
   agence: {
     name: "Lokky Agence",
-    priceId: "price_1TlGNuPsepNfoqv3L1RoJhpS",
+    priceId: "price_1TqmgBLhTum4lL1597rCR4aI",
   },
 };
 
