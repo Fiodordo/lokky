@@ -172,7 +172,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-          </div>
       {/* Pricing */}
       <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
