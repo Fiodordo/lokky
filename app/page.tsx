@@ -1,5 +1,6 @@
 "use client";
 
+import ScrollingBanner from "@/components/ScrollingBanner";
 import Link from "next/link";
 import FloatingReview from "@/components/FloatingReview";
 import PublicScanner from "@/components/PublicScanner";
@@ -198,7 +199,7 @@ export default function Home() {
           ))}
         </div>
       </section>
-
+      <ScrollingBanner />
       {/* Problèmes */}
       <section style={{ maxWidth: "800px", margin: "0 auto", padding: "100px 40px", position: "relative", zIndex: 1 }}>
         <AnimatedSection>
