@@ -1,4 +1,5 @@
 import Link from "next/link";
+import FloatingReview from "@/components/FloatingReview";
 import PublicScanner from "@/components/PublicScanner";
 
 export default function Home() {
@@ -17,41 +18,21 @@ export default function Home() {
         </div>
       </header>
 
-     {/* Hero */}
-     <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center" }}>
+      {/* Hero */}
+      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center" }}>
         <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(168,85,247,0.1)", border: "0.5px solid rgba(168,85,247,0.3)", borderRadius: "20px", padding: "5px 14px", marginBottom: "32px" }}>
           <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a855f7" }}></div>
           <span style={{ fontSize: "11px", color: "#c084fc" }}>Sécurité simplifiée pour makers et créateurs</span>
         </div>
-
         <h1 style={{ fontSize: "58px", fontWeight: "500", color: "#fff", lineHeight: "1.1", marginBottom: "24px" }}>
           Une faille peut<br />
           <span style={{ color: "#a855f7", fontStyle: "italic" }}>tout faire perdre.</span>
         </h1>
-
         <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "48px", maxWidth: "520px", margin: "0 auto 48px" }}>
           Lokky vérifie votre site en 5 secondes et vous dit exactement quoi corriger — sans jargon technique.
         </p>
-
         <PublicScanner />
       </section>
-
-        {/* Terminal */}
-        <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "20px", maxWidth: "500px", margin: "0 auto 32px", textAlign: "left" }}>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "14px" }}>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
-            <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#a855f7" }}></div>
-            <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginLeft: "8px", fontFamily: "monospace" }}>lokky — scanner</span>
-          </div>
-          <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace", marginBottom: "10px" }}>$ lokky scan --target monprojet.com</p>
-          <p style={{ fontSize: "12px", color: "#a855f7", fontFamily: "monospace", marginBottom: "4px" }}>✓ Votre site est bien chiffré</p>
-          <p style={{ fontSize: "12px", color: "#ef4444", fontFamily: "monospace", marginBottom: "4px" }}>✗ Votre site peut être bloqué par Chrome</p>
-          <p style={{ fontSize: "12px", color: "#f59e0b", fontFamily: "monospace" }}>⚠ Les données de vos clients peuvent être volées</p>
-        </div>
-
-
-    
 
       {/* Stats */}
       <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", borderBottom: "0.5px solid rgba(168,85,247,0.15)", padding: "28px 40px" }}>
@@ -141,37 +122,7 @@ export default function Home() {
           </div>
         </div>
       </section>
-        {/* Avis */}
-        <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
-          <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Ce qu'ils en pensent</h2>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Des makers qui ont testé Lokky</p>
-          </div>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
-            {[
-              {
-                quote: "J'ai scanné mon site avec Lokky et j'ai découvert des failles que j'avais complètement ignorées. Simple à utiliser et les guides de correction sont vraiment clairs.",
-                name: "Fondateur",
-                company: "govibecoding.ai",
-              },
-            ].map((avis, i) => (
-              <div key={i} style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "24px" }}>
-                <p style={{ fontSize: "13px", color: "rgba(255,255,255,0.6)", lineHeight: "1.8", marginBottom: "20px", fontStyle: "italic" }}>"{avis.quote}"</p>
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                    <div style={{ width: "36px", height: "36px", borderRadius: "50%", background: "rgba(168,85,247,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                      <i className="ti ti-user" style={{ fontSize: "16px", color: "#a855f7" }}></i>
-                  </div>
-                  <div>
-                   <p style={{ fontSize: "13px", fontWeight: "500", color: "#fff", margin: 0 }}>{avis.name}</p>
-                    <p style={{ fontSize: "11px", color: "#a855f7", margin: 0 }}>{avis.company}</p>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+
       {/* Pricing */}
       <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px" }}>
         <div style={{ maxWidth: "800px", margin: "0 auto" }}>
@@ -256,6 +207,9 @@ export default function Home() {
         <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>© 2026 Lokky — Sécurité simplifiée pour tous</p>
         <Link href="/pricing" style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Tarifs</Link>
       </footer>
+
+      {/* Widget flottant avis */}
+      <FloatingReview />
 
     </div>
   );
