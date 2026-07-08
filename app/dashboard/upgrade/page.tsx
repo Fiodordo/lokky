@@ -5,8 +5,8 @@ import { supabase } from "@/lib/supabase";
 
 const plans = [
   { id: "starter", name: "Starter", price: "Gratuit", desc: "Pour découvrir Lokky", features: ["1 projet", "Scan manuel", "Score de sécurité", "Rapport basique"], current: true },
-  { id: "builder", name: "Builder", price: "29€", period: "/mois", desc: "Pour les makers actifs", features: ["5 projets", "Scan hebdomadaire", "Alertes email SSL", "Historique complet", "Guides de correction"], highlight: true },
-  { id: "agence", name: "Agence", price: "99€", period: "/mois", desc: "Pour les pros et agences", features: ["Projets illimités", "Scan quotidien", "Rapports exportables", "Support prioritaire", "Multi-utilisateurs"] },
+  { id: "pro", name: "Pro", price: "9€", period: "/mois", desc: "Pour les makers actifs", features: ["20 scans/mois", "Alertes email SSL", "Historique complet", "Guides détaillés", "Lien partageable"], highlight: true },
+  { id: "agence", name: "Agence", price: "39€", period: "/mois", desc: "Pour les pros et agences", features: ["Scans illimités", "Scan automatique quotidien", "Rapports exportables", "Support prioritaire", "Multi-clients"] },
 ];
 
 export default function UpgradePage() {

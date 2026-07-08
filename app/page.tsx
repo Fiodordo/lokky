@@ -151,9 +151,9 @@ export default function Home() {
           </div>
           <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
             {[
-              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["3 vérifications/mois", "Rapport complet", "Score A à F", "Guides de correction"], cta: "Commencer gratuitement" },
-              { name: "Builder", price: "29€/mois", desc: "Pour les makers actifs", features: ["50 vérifications/mois", "Alertes email auto", "Historique complet", "Guides par plateforme"], highlight: true, cta: "Choisir Builder" },
-              { name: "Agence", price: "99€/mois", desc: "Pour les pros", features: ["Vérifications illimitées", "Scan quotidien auto", "Rapports exportables", "Support prioritaire"], cta: "Choisir Agence" },
+              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["1 scan/mois", "Score A à F", "Rapport de base", "Guides détaillés"], cta: "Commencer gratuitement" },
+              { name: "Pro", price: "9€/mois", desc: "Pour les makers actifs", features: ["20 scans/mois", "Alertes email auto", "Historique complet", "Lien partageable"], highlight: true, cta: "Choisir Pro" },
+              { name: "Agence", price: "39€/mois", desc: "Pour les pros", features: ["Scans illimités", "Scan auto quotidien", "Rapports exportables", "Support prioritaire"], cta: "Choisir Agence" },
             ].map((plan) => (
               <div key={plan.name} style={{ background: plan.highlight ? "rgba(168,85,247,0.1)" : "#0d0018", border: plan.highlight ? "2px solid #a855f7" : "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", position: "relative" }}>
                 {plan.highlight && (

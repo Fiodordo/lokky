@@ -5,8 +5,8 @@ import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
 const PLAN_LIMITS = {
-  starter: 3,
-  builder: 50,
+  starter: 1,
+  pro: 20,
   agence: Infinity,
 };
 
