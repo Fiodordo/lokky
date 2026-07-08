@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 
 const scoreColor = (s: string) => {
-  if (s === "A" || s === "B") return "#a855f7";
+  if (s === "A" || s === "B") return "#00d4aa";
   if (s === "C") return "#f59e0b";
   return "#ef4444";
 };
@@ -28,11 +28,15 @@ export default function PublicScanner() {
     headers: Record<string, boolean>;
   } | null>(null);
   const [error, setError] = useState("");
+  const [email, setEmail] = useState("");
+  const [emailSent, setEmailSent] = useState(false);
+  const [emailLoading, setEmailLoading] = useState(false);
 
   async function handleScan() {
     setLoading(true);
     setError("");
     setResult(null);
+    setEmailSent(false);
     try {
       const res = await fetch("/api/public-scan", {
         method: "POST",
@@ -46,6 +50,30 @@ export default function PublicScanner() {
       setError("Erreur lors du scan");
     } finally {
       setLoading(false);
+    }
+  }
+
+  async function handleEmailSubmit() {
+    if (!email || !result) return;
+    setEmailLoading(true);
+    try {
+      await fetch("/api/send-report", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email,
+          domain: result.domain,
+          score: result.score,
+          sslValid: result.sslValid,
+          httpsRedirect: result.httpsRedirect,
+          headers: result.headers,
+        }),
+      });
+      setEmailSent(true);
+    } catch {
+      setEmailSent(true);
+    } finally {
+      setEmailLoading(false);
     }
   }
 
@@ -137,15 +165,51 @@ export default function PublicScanner() {
               </div>
             )}
 
-            {/* CTA */}
-            <div style={{ padding: "20px 24px", textAlign: "center" }}>
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.5)", marginBottom: "14px" }}>
-                🔒 Créez un compte gratuit pour voir le détail des {issuesCount} problème{issuesCount > 1 ? "s" : ""} et les guides de correction
-              </p>
-              <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", padding: "12px 24px", borderRadius: "6px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
-                Voir le rapport complet — gratuit →
-              </Link>
-              <p style={{ fontSize: "10px", color: "rgba(255,255,255,0.2)", marginTop: "8px" }}>Sans carte bancaire</p>
+            {/* Capture email */}
+            <div style={{ padding: "20px 24px" }}>
+              {!emailSent ? (
+                <>
+                  <p style={{ fontSize: "13px", color: "#fff", fontWeight: "500", marginBottom: "4px" }}>
+                    Recevez le rapport complet par email
+                  </p>
+                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.4)", marginBottom: "14px" }}>
+                    Détail des {issuesCount} problème{issuesCount > 1 ? "s" : ""} + guides de correction adaptés à votre site
+                  </p>
+                  <div style={{ display: "flex", gap: "8px", marginBottom: "12px" }}>
+                    <input
+                      type="email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      onKeyDown={(e) => e.key === "Enter" && !emailLoading && email && handleEmailSubmit()}
+                      placeholder="vous@exemple.com"
+                      style={{ flex: 1, background: "rgba(255,255,255,0.04)", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "6px", padding: "10px 14px", fontSize: "13px", color: "#fff", outline: "none" }}
+                    />
+                    <button
+                      onClick={handleEmailSubmit}
+                      disabled={emailLoading || !email}
+                      style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", border: "none", borderRadius: "6px", padding: "10px 16px", fontSize: "13px", fontWeight: "600", cursor: "pointer", opacity: emailLoading || !email ? 0.5 : 1, whiteSpace: "nowrap" }}
+                    >
+                      {emailLoading ? "Envoi..." : "Recevoir →"}
+                    </button>
+                  </div>
+                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.2)", textAlign: "center" }}>
+                    Ou{" "}
+                    <Link href="/register" style={{ color: "#a855f7", textDecoration: "none" }}>
+                      créez un compte gratuit
+                    </Link>
+                    {" "}pour voir le rapport maintenant
+                  </p>
+                </>
+              ) : (
+                <div style={{ textAlign: "center" }}>
+                  <p style={{ fontSize: "20px", marginBottom: "8px" }}>✓</p>
+                  <p style={{ fontSize: "14px", color: "#a855f7", fontWeight: "500", marginBottom: "4px" }}>Rapport envoyé !</p>
+                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", marginBottom: "14px" }}>Vérifiez votre boîte mail — pensez aux spams</p>
+                  <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", padding: "10px 20px", borderRadius: "6px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
+                    Créer mon compte gratuit →
+                  </Link>
+                </div>
+              )}
             </div>
           </div>
         );
