@@ -15,6 +15,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Lokky — Sécurité simplifiée pour makers et créateurs",
   description: "Scannez votre site ou application et détectez les failles de sécurité en quelques secondes. SSL, headers, cookies — tout vérifié automatiquement.",
+  viewport: "width=device-width, initial-scale=1, maximum-scale=2",
   icons: {
     icon: "/favicon.svg",
   },
