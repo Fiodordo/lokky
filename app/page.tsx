@@ -142,7 +142,7 @@ function FloatingParticles() {
 
 export default function Home() {
   return (
-    <div style={{ minHeight: "100vh", background: "#080010", fontFamily: "var(--font-sans)", position: "relative" }}>
+    <div style={{ minHeight: "100vh", background: "#080010", fontFamily: "var(--font-sans)", position: "relative", overflowX: "hidden" }}>
       <FloatingParticles />
 
       {/* Header */}
