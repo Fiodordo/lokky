@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import FloatingReview from "@/components/FloatingReview";
+import FloatingReviewEN from "@/components/FloatingReviewEN";
 import PublicScanner from "@/components/PublicScanner";
 import ScrollingBanner from "@/components/ScrollingBanner";
 import { useEffect, useRef, useState } from "react";
@@ -115,12 +115,15 @@ export default function HomeEN() {
     <div style={{ minHeight: "100vh", background: "#080010", fontFamily: "var(--font-sans)", position: "relative", overflowX: "hidden" }}>
       <FloatingParticles />
 
-      {/* Header */}
-      <header style={{ borderBottom: "0.5px solid rgba(168,85,247,0.2)", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,0,16,0.9)", backdropFilter: "blur(10px)", zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
-          <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
-        </div>
+    {/* Header */}
+        <header style={{ borderBottom: "0.5px solid rgba(168,85,247,0.2)", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,0,16,0.9)", backdropFilter: "blur(10px)", zIndex: 10 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
+                <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
+            </div>
+            <Link href="/" style={{ fontSize: "11px", color: "#a855f7", textDecoration: "none", border: "0.5px solid rgba(168,85,247,0.3)", padding: "3px 10px", borderRadius: "20px" }}>🇫🇷 FR</Link>
+            </div>
         <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
           <Link href="/login" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Login</Link>
           <Link href="/register" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Start for free</Link>
@@ -350,7 +353,7 @@ export default function HomeEN() {
         <Link href="/" style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Français</Link>
       </footer>
 
-      <FloatingReview />
+      <FloatingReviewEN />
 
       <style>{`
         @keyframes pulse {

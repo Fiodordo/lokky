@@ -147,15 +147,18 @@ export default function Home() {
 
       {/* Header */}
       <header style={{ borderBottom: "0.5px solid rgba(168,85,247,0.2)", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,0,16,0.9)", backdropFilter: "blur(10px)", zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
-          <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
-        </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <Link href="/login" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Connexion</Link>
-          <Link href="/register" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Essai gratuit</Link>
-        </div>
-      </header>
+  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
+    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+      <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
+      <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
+    </div>
+    <Link href="/en" style={{ fontSize: "11px", color: "#a855f7", textDecoration: "none", border: "0.5px solid rgba(168,85,247,0.3)", padding: "3px 10px", borderRadius: "20px" }}>🇬🇧 EN</Link>
+  </div>
+  <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+    <Link href="/login" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Connexion</Link>
+    <Link href="/register" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Essai gratuit</Link>
+  </div>
+</header>
 
       {/* Hero */}
       <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center", position: "relative", zIndex: 1 }}>
