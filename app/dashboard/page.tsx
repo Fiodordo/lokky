@@ -4,91 +4,72 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 
+type Scan = { domain: string; score: string; created_at: string };
+
+const scoreTone = (s: string | null) => {
+  if (s === "A" || s === "B") return { color: "#22c55e", bg: "rgba(34,197,94,.09)", label: "Bon" };
+  if (s === "C") return { color: "#f59e0b", bg: "rgba(245,158,11,.09)", label: "À corriger" };
+  if (s === "D" || s === "F") return { color: "#ef4444", bg: "rgba(239,68,68,.09)", label: "Risque" };
+  return { color: "#8b5cf6", bg: "rgba(139,92,246,.09)", label: "Pas encore scanné" };
+};
+
 export default function DashboardHome() {
-  const [scansCount, setScansCount] = useState(0);
-  const [lastScan, setLastScan] = useState<string | null>(null);
-  const [lastScore, setLastScore] = useState<string | null>(null);
+  const [scans, setScans] = useState<Scan[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (data.user) loadStats(data.user.id);
+      if (data.user) loadScans(data.user.id);
+      else setLoading(false);
     });
   }, []);
 
-  async function loadStats(uid: string) {
-    const { data } = await supabase
-      .from("scans")
-      .select("domain, score, created_at")
-      .eq("user_id", uid)
-      .order("created_at", { ascending: false });
-    if (data) {
-      setScansCount(data.length);
-      setLastScan(data[0]?.domain ?? null);
-      setLastScore(data[0]?.score ?? null);
-    }
+  async function loadScans(uid: string) {
+    const { data } = await supabase.from("scans").select("domain, score, created_at").eq("user_id", uid).order("created_at", { ascending: false }).limit(8);
+    setScans(data ?? []);
+    setLoading(false);
   }
 
-  const scoreColor = (s: string | null) => {
-    if (s === "A" || s === "B") return "#00d4aa";
-    if (s === "C") return "#f59e0b";
-    if (s === "D" || s === "F") return "#ef4444";
-    return "#ffffff";
-  };
-
-  const stats = [
-    { label: "Scans effectués", value: scansCount.toString(), icon: "ti-search" },
-    { label: "Dernier projet", value: lastScan ?? "—", icon: "ti-world" },
-    { label: "Dernier score", value: lastScore ?? "—", icon: "ti-shield-check", color: scoreColor(lastScore) },
-    { label: "Plan actuel", value: "Starter", icon: "ti-bolt" },
-  ];
-
-  const actions = [
-    { label: "Scanner un projet", desc: "Analysez SSL, headers, cookies en quelques secondes", href: "/dashboard/scanner", icon: "ti-search" },
-    { label: "Voir l'historique", desc: "Consultez tous vos scans passés", href: "/dashboard/history", icon: "ti-chart-bar" },
-    { label: "Guides de correction", desc: "Apprenez à corriger les failles détectées", href: "/dashboard/guides", icon: "ti-book" },
-    { label: "Upgrader mon plan", desc: "Débloquez les scans automatiques et alertes", href: "/dashboard/upgrade", icon: "ti-bolt" },
-  ];
+  const latest = scans[0];
+  const tone = scoreTone(latest?.score ?? null);
+  const formattedDate = latest ? new Date(latest.created_at).toLocaleDateString("fr-FR", { day: "numeric", month: "short" }) : null;
 
   return (
-    <div style={{ maxWidth: "800px" }}>
-      <div style={{ marginBottom: "32px" }}>
-        <h1 style={{ fontSize: "22px", fontWeight: "500", color: "#e0f0f8", marginBottom: "6px" }}>Vue d'ensemble</h1>
-        <p style={{ fontSize: "13px", color: "#5a8a9f" }}>Bienvenue sur votre tableau de bord Lokky</p>
+    <div className="dash-home">
+      <div className="dash-head">
+        <div><div className="dash-kicker">LOKKY / OVERVIEW</div><h1>Ton SaaS, <em>prêt pour la prod ?</em></h1><p>Un endroit simple pour savoir ce qui va bien, ce qui risque de casser et quoi corriger ensuite.</p></div>
+        <Link href="/dashboard/scanner" className="dash-primary">+ Scanner un SaaS</Link>
       </div>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "12px", marginBottom: "32px" }}>
-        {stats.map((stat) => (
-          <div key={stat.label} style={{ background: "#0d1f2d", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "16px" }}>
-            <i className={`ti ${stat.icon}`} style={{ fontSize: "16px", color: "#00d4aa", marginBottom: "8px", display: "block" }}></i>
-            <p style={{ fontSize: "10px", color: "#5a8a9f", marginBottom: "4px" }}>{stat.label}</p>
-            <p style={{ fontSize: "18px", fontWeight: "500", color: stat.color ?? "#ffffff", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{stat.value}</p>
-          </div>
-        ))}
+
+      {latest ? (
+        <section className="health-card">
+          <div className="health-main"><div className="health-label">DERNIER SCAN <span>• {formattedDate}</span></div><h2>{latest.domain}</h2><p>Dernier résultat de sécurité</p></div>
+          <div className="health-score" style={{ color: tone.color, background: tone.bg, borderColor: `${tone.color}55` }}><strong>{latest.score}</strong><span>{tone.label}</span></div>
+          <Link href="/dashboard/history" className="health-link">Voir le rapport →</Link>
+        </section>
+      ) : (
+        <section className="empty-hero"><div className="empty-icon">⌁</div><div><div className="dash-kicker">PREMIER PAS</div><h2>Commence par scanner ton SaaS.</h2><p>Colle ton URL et Lokky vérifie les principaux signaux de sécurité visibles depuis l'extérieur.</p></div><Link href="/dashboard/scanner" className="dash-primary">Lancer mon premier scan →</Link></section>
+      )}
+
+      <div className="dash-grid">
+        <section className="panel">
+          <div className="panel-head"><div><h3>Scans récents</h3><p>Les dernières vérifications de tes projets</p></div><Link href="/dashboard/history">Tout voir →</Link></div>
+          {loading ? <div className="panel-empty">Chargement...</div> : scans.length === 0 ? <div className="panel-empty">Aucun scan pour le moment.</div> : <div className="scan-list">{scans.slice(0,5).map((scan, i) => { const t = scoreTone(scan.score); return <Link href="/dashboard/history" className="scan-row" key={`${scan.domain}-${scan.created_at}-${i}`}><span className="scan-status" style={{background:t.color}}/><span className="scan-domain">{scan.domain}</span><span className="scan-date">{new Date(scan.created_at).toLocaleDateString("fr-FR",{day:"numeric",month:"short"})}</span><strong style={{color:t.color}}>{scan.score}</strong><span className="scan-arrow">→</span></Link>; })}</div>}
+        </section>
+
+        <section className="panel next-panel">
+          <div className="panel-head"><div><h3>À faire ensuite</h3><p>Le chemin le plus court vers un SaaS plus safe</p></div></div>
+          <Link href="/dashboard/scanner" className="next-row"><span className="next-number">01</span><span><strong>Scanner ton SaaS</strong><small>Découvre ton score actuel</small></span><b>→</b></Link>
+          <Link href="/dashboard/guides" className="next-row"><span className="next-number">02</span><span><strong>Corriger un problème</strong><small>Guides simples, sans jargon</small></span><b>→</b></Link>
+          <Link href="/dashboard/history" className="next-row"><span className="next-number">03</span><span><strong>Re-scanner après correction</strong><small>Vérifie que ton score progresse</small></span><b>→</b></Link>
+        </section>
       </div>
-      <div style={{ background: "#0a1929", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "20px", marginBottom: "32px" }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "12px" }}>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d4aa" }}></div>
-          <span style={{ fontSize: "11px", color: "#5a8a9f", marginLeft: "8px" }}>lokky — scanner</span>
-        </div>
-        <p style={{ fontSize: "11px", color: "#00d4aa", marginBottom: "12px", fontFamily: "monospace" }}>$ lokky scan --target monprojet.com</p>
-        <Link href="/dashboard/scanner" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "#00d4aa", color: "#0a1929", padding: "10px 20px", borderRadius: "6px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
-          <i className="ti ti-search" style={{ fontSize: "14px" }}></i>
-          Lancer un scan
-        </Link>
-      </div>
-      <h2 style={{ fontSize: "14px", fontWeight: "500", color: "#e0f0f8", marginBottom: "12px" }}>Actions rapides</h2>
-      <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "12px" }}>
-        {actions.map((action) => (
-          <Link key={action.label} href={action.href} style={{ display: "flex", alignItems: "flex-start", gap: "12px", background: "#0a1929", border: "0.5px solid #1a3a4a", borderRadius: "10px", padding: "16px", textDecoration: "none" }}>
-            <i className={`ti ${action.icon}`} style={{ fontSize: "18px", color: "#00d4aa", marginTop: "1px" }}></i>
-            <div>
-              <p style={{ fontSize: "13px", fontWeight: "500", color: "#e0f0f8", marginBottom: "4px" }}>{action.label}</p>
-              <p style={{ fontSize: "11px", color: "#5a8a9f" }}>{action.desc}</p>
-            </div>
-          </Link>
-        ))}
-      </div>
+
+      <section className="maker-tip"><div className="tip-icon">✦</div><div><span>MAKER TIP</span><h3>Ne cherche pas la perfection avant de shipper.</h3><p>Commence par éliminer les risques visibles. Corrige, re-scanne, puis continue à construire.</p></div><Link href="/dashboard/guides">Voir les guides →</Link></section>
+
+      <style jsx>{`
+        .dash-home{max-width:1080px;color:#f8fafc}.dash-head{display:flex;align-items:flex-end;justify-content:space-between;gap:30px;margin-bottom:28px}.dash-kicker{font:600 10px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:#a855f7;margin-bottom:9px}.dash-head h1{font-size:30px;letter-spacing:-.035em;line-height:1.1;margin:0 0 9px;font-weight:600}.dash-head h1 em{color:#a855f7;font-style:normal}.dash-head p{margin:0;color:#718096;font-size:13px;line-height:1.6;max-width:650px}.dash-primary{display:inline-flex;align-items:center;justify-content:center;white-space:nowrap;text-decoration:none;background:#8b5cf6;color:#fff;border-radius:8px;padding:11px 15px;font-size:12px;font-weight:600;box-shadow:0 10px 30px rgba(139,92,246,.16)}.health-card,.empty-hero{background:linear-gradient(135deg,rgba(139,92,246,.1),rgba(255,255,255,.025));border:1px solid rgba(139,92,246,.18);border-radius:15px;padding:25px;display:flex;align-items:center;gap:24px;margin-bottom:18px}.health-main{flex:1}.health-label{font:10px ui-monospace;color:#64748b;letter-spacing:.08em}.health-label span{color:#475569}.health-main h2{font-size:20px;margin:8px 0 4px}.health-main p{font-size:12px;color:#64748b;margin:0}.health-score{width:72px;height:72px;border:1px solid;border-radius:14px;display:flex;flex-direction:column;align-items:center;justify-content:center}.health-score strong{font-size:30px;line-height:1}.health-score span{font-size:9px;margin-top:4px}.health-link{color:#c4b5fd;text-decoration:none;font-size:11px;white-space:nowrap}.empty-hero{padding:30px}.empty-icon{width:52px;height:52px;border-radius:14px;background:rgba(168,85,247,.1);color:#a855f7;display:grid;place-items:center;font-size:25px}.empty-hero h2{font-size:19px;margin:0 0 6px}.empty-hero p{font-size:12px;color:#718096;line-height:1.6;max-width:570px;margin:0}.dash-grid{display:grid;grid-template-columns:1.15fr .85fr;gap:18px}.panel{background:#0d0a12;border:1px solid rgba(255,255,255,.07);border-radius:14px;overflow:hidden}.panel-head{padding:19px 20px;border-bottom:1px solid rgba(255,255,255,.06);display:flex;justify-content:space-between;align-items:center}.panel-head h3{font-size:13px;margin:0 0 4px}.panel-head p{font-size:10px;color:#64748b;margin:0}.panel-head a{font-size:10px;color:#a78bfa;text-decoration:none}.panel-empty{padding:35px 20px;color:#64748b;font-size:12px}.scan-row{display:grid;grid-template-columns:8px 1fr 65px 24px 20px;gap:10px;align-items:center;padding:14px 20px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.045);transition:background .2s}.scan-row:hover,.next-row:hover{background:rgba(255,255,255,.025)}.scan-status{width:7px;height:7px;border-radius:50%}.scan-domain{color:#e2e8f0;font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.scan-date{font-size:10px;color:#64748b}.scan-row strong{font-size:13px;text-align:center}.scan-arrow{color:#64748b;font-size:12px}.next-row{display:grid;grid-template-columns:30px 1fr 18px;gap:12px;align-items:center;padding:16px 20px;text-decoration:none;border-bottom:1px solid rgba(255,255,255,.045)}.next-number{font:10px ui-monospace;color:#a855f7}.next-row strong{display:block;color:#e2e8f0;font-size:12px;margin-bottom:3px}.next-row small{display:block;color:#64748b;font-size:10px}.next-row>b{color:#64748b;font-size:12px}.maker-tip{margin-top:18px;padding:20px;border:1px solid rgba(168,85,247,.14);background:rgba(168,85,247,.045);border-radius:14px;display:flex;align-items:center;gap:15px}.tip-icon{color:#c4b5fd;font-size:18px}.maker-tip span{font:600 9px ui-monospace;color:#a855f7;letter-spacing:.12em}.maker-tip h3{font-size:12px;margin:5px 0}.maker-tip p{font-size:10px;color:#64748b;margin:0}.maker-tip a{margin-left:auto;color:#c4b5fd;text-decoration:none;font-size:10px;white-space:nowrap}@media(max-width:800px){.dash-head{align-items:flex-start;flex-direction:column}.dash-head h1{font-size:26px}.health-card,.empty-hero{align-items:flex-start;flex-wrap:wrap}.health-score{margin-left:auto}.health-link{width:100%}.dash-grid{grid-template-columns:1fr}.maker-tip{align-items:flex-start;flex-wrap:wrap}.maker-tip a{margin-left:33px;width:100%}}@media(max-width:520px){.dash-head h1{font-size:23px}.health-card{padding:20px}.scan-row{grid-template-columns:8px 1fr 28px 18px}.scan-date{display:none}.empty-hero{padding:22px}.empty-hero .dash-primary{width:100%}}
+      `}</style>
     </div>
   );
 }
