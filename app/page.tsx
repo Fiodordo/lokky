@@ -1,405 +1,191 @@
 "use client";
 
-import ScrollingBanner from "@/components/ScrollingBanner";
 import Link from "next/link";
-import FloatingReview from "@/components/FloatingReview";
 import PublicScanner from "@/components/PublicScanner";
-import { useEffect, useRef, useState } from "react";
 
-function useInView(threshold = 0.1) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setInView(true);
-    }, { threshold });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, inView };
-}
+const problems = [
+  {
+    icon: "🔐",
+    title: "Auth mal configurée",
+    text: "Une route API ou une donnée peut être accessible sans que tu t'en rendes compte.",
+  },
+  {
+    icon: "🔑",
+    title: "Secrets exposés",
+    text: "Une clé ou une variable sensible peut finir dans ton frontend ou ton bundle.",
+  },
+  {
+    icon: "🚀",
+    title: "Ship trop vite",
+    text: "Tu peux lancer en quelques jours sans savoir ce qui est réellement prêt pour la prod.",
+  },
+];
 
-function AnimatedSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const { ref, inView } = useInView();
-  return (
-    <div ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(30px)", transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms` }}>
-      {children}
-    </div>
-  );
-}
-
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const { ref, inView } = useInView();
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const duration = 2000;
-    const step = target / (duration / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [inView, target]);
-  return <span ref={ref}>{count}{suffix}</span>;
-}
-
-function TerminalAnimation() {
-  const lines = [
-    { text: "$ lokky scan --target monprojet.com", color: "rgba(255,255,255,0.3)", delay: 0 },
-    { text: "✓ Votre site est bien chiffré", color: "#a855f7", delay: 800 },
-    { text: "✗ Votre site peut être bloqué par Chrome", color: "#ef4444", delay: 1600 },
-    { text: "⚠ Les données de vos clients peuvent être volées", color: "#f59e0b", delay: 2400 },
-  ];
-  const [visibleLines, setVisibleLines] = useState<number[]>([]);
-  const [typedText, setTypedText] = useState("");
-
-  useEffect(() => {
-    const fullText = lines[0].text;
-    let i = 0;
-    const typeTimer = setInterval(() => {
-      if (i <= fullText.length) {
-        setTypedText(fullText.slice(0, i));
-        i++;
-      } else {
-        clearInterval(typeTimer);
-        lines.slice(1).forEach((_, idx) => {
-          setTimeout(() => setVisibleLines(prev => [...prev, idx + 1]), lines[idx + 1].delay - lines[0].delay);
-        });
-      }
-    }, 40);
-    return () => clearInterval(typeTimer);
-  }, []);
-
-  return (
-    <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "20px", maxWidth: "500px", margin: "0 auto 32px", textAlign: "left" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "14px" }}>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#a855f7" }}></div>
-        <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginLeft: "8px", fontFamily: "monospace" }}>lokky — scanner</span>
-      </div>
-      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace", marginBottom: "10px", minHeight: "16px" }}>
-        {typedText}<span style={{ animation: "blink 1s infinite" }}>|</span>
-      </p>
-      {lines.slice(1).map((line, i) => (
-        <p key={i} style={{ fontSize: "12px", color: line.color, fontFamily: "monospace", marginBottom: "4px", opacity: visibleLines.includes(i + 1) ? 1 : 0, transform: visibleLines.includes(i + 1) ? "translateX(0)" : "translateX(-10px)", transition: "opacity 0.4s ease, transform 0.4s ease" }}>
-          {line.text}
-        </p>
-      ))}
-      <style>{`@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }`}</style>
-    </div>
-  );
-}
-
-function FloatingParticles() {
-  const [particles, setParticles] = useState<Array<{
-    width: number; height: number; opacity: number;
-    left: number; top: number; duration: number; delay: number;
-  }>>([]);
-
-  useEffect(() => {
-    setParticles(Array.from({ length: 20 }).map(() => ({
-      width: Math.random() * 3 + 1,
-      height: Math.random() * 3 + 1,
-      opacity: Math.random() * 0.3 + 0.05,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      duration: Math.random() * 10 + 10,
-      delay: Math.random() * 10,
-    })));
-  }, []);
-
-  return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-      {particles.map((p, i) => (
-        <div key={i} style={{
-          position: "absolute",
-          width: `${p.width}px`,
-          height: `${p.height}px`,
-          borderRadius: "50%",
-          background: "#a855f7",
-          opacity: p.opacity,
-          left: `${p.left}%`,
-          top: `${p.top}%`,
-          animation: `float ${p.duration}s infinite ease-in-out`,
-          animationDelay: `${p.delay}s`,
-        }} />
-      ))}
-      <style>{`
-        @keyframes float {
-          0%, 100% { transform: translateY(0px) translateX(0px); }
-          25% { transform: translateY(-30px) translateX(10px); }
-          50% { transform: translateY(-10px) translateX(-15px); }
-          75% { transform: translateY(-25px) translateX(5px); }
-        }
-      `}</style>
-    </div>
-  );
-}
+const steps = [
+  ["01", "Colle ton URL", "Donne à Lokky l'URL de ton SaaS en production."],
+  ["02", "Lokky scanne", "On vérifie les signaux de sécurité visibles depuis l'extérieur."],
+  ["03", "Corrige", "Tu comprends le problème et sais quoi corriger ensuite."],
+];
 
 export default function Home() {
   return (
-    <div style={{ minHeight: "100vh", background: "#080010", fontFamily: "var(--font-sans)", position: "relative", overflowX: "hidden" }}>
-      <FloatingParticles />
+    <main className="lk-page">
+      <div className="lk-glow lk-glow-one" />
+      <div className="lk-glow lk-glow-two" />
 
-      {/* Header */}
-      <header style={{ borderBottom: "0.5px solid rgba(168,85,247,0.2)", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,0,16,0.9)", backdropFilter: "blur(10px)", zIndex: 10 }}>
-  <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-    <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-      <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
-      <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
-    </div>
-    <Link href="/en" style={{ fontSize: "11px", color: "#a855f7", textDecoration: "none", border: "0.5px solid rgba(168,85,247,0.3)", padding: "3px 10px", borderRadius: "20px" }}>🇬🇧 EN</Link>
-  </div>
-  <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-    <Link href="/login" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Connexion</Link>
-    <Link href="/register" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Essai gratuit</Link>
-  </div>
-</header>
+      <header className="lk-nav">
+        <Link href="/" className="lk-logo">
+          <span className="lk-logo-mark">◈</span>
+          LOKKY
+        </Link>
+        <nav className="lk-nav-links">
+          <Link href="/pricing">Pricing</Link>
+          <Link href="/login">Connexion</Link>
+          <Link href="/register" className="lk-nav-cta">Commencer →</Link>
+        </nav>
+      </header>
 
-      {/* Hero */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <AnimatedSection>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(168,85,247,0.1)", border: "0.5px solid rgba(168,85,247,0.3)", borderRadius: "20px", padding: "5px 14px", marginBottom: "32px" }}>
-            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a855f7", animation: "pulse 2s infinite" }}></div>
-            <span style={{ fontSize: "11px", color: "#c084fc" }}>Sécurité simplifiée pour makers et créateurs</span>
+      <section className="lk-hero">
+        <div className="lk-badge"><span /> Pour les SaaS makers & vibe coders</div>
+        <h1>
+          Tu as vibe-codé ton SaaS.<br />
+          <em>Est-il prêt pour la prod ?</em>
+        </h1>
+        <p className="lk-hero-copy">
+          Cursor, Claude, Lovable, Bolt… construisent ton SaaS en un temps record.
+          <br className="desktop" />
+          Lokky vérifie ce que tu risques d'avoir oublié avant de le mettre entre les mains de tes utilisateurs.
+        </p>
+
+        <div className="lk-hero-card">
+          <div className="lk-card-top">
+            <span className="dot red" /><span className="dot yellow" /><span className="dot green" />
+            <span>lokky / security scan</span>
           </div>
-          <h1 style={{ fontSize: "58px", fontWeight: "500", color: "#fff", lineHeight: "1.1", marginBottom: "24px" }}>
-            Une faille peut<br />
-            <span style={{ color: "#a855f7", fontStyle: "italic" }}>tout faire perdre.</span>
-          </h1>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "48px", maxWidth: "520px", margin: "0 auto 48px" }}>
-            Lokky vérifie votre site en 5 secondes et vous dit exactement quoi corriger — sans jargon technique.
-          </p>
-        </AnimatedSection>
-
-        <AnimatedSection delay={200}>
-          <TerminalAnimation />
-        </AnimatedSection>
-
-        <AnimatedSection delay={400}>
           <PublicScanner />
-        </AnimatedSection>
-      </section>
+        </div>
 
-      {/* Stats */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", borderBottom: "0.5px solid rgba(168,85,247,0.15)", padding: "28px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", justifyContent: "center", gap: "80px" }}>
-          {[
-            { value: 500, suffix: "+", label: "Sites vérifiés" },
-            { value: 5, suffix: "s", label: "Temps de vérification" },
-            { value: 100, suffix: "%", label: "Gratuit pour commencer" },
-          ].map((stat) => (
-            <div key={stat.label} style={{ textAlign: "center" }}>
-              <p style={{ fontSize: "28px", fontWeight: "500", color: "#a855f7" }}>
-                <AnimatedCounter target={stat.value} suffix={stat.suffix} />
-              </p>
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>{stat.label}</p>
-            </div>
-          ))}
+        <div className="lk-trust">
+          <span>✓ Sans inscription</span>
+          <span>✓ Sans carte bancaire</span>
+          <span>✓ Résultat en quelques secondes</span>
         </div>
       </section>
-      <ScrollingBanner />
-      {/* Problèmes */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <AnimatedSection>
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>
-              Ce qui arrive quand votre<br />site n'est pas sécurisé
-            </h2>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Des problèmes concrets qui coûtent de l'argent</p>
-          </div>
-        </AnimatedSection>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-          {[
-            { icon: "ti-alert-triangle", title: "Alerte rouge sur votre site", desc: "Chrome et Firefox bloquent votre site et affichent \"Ce site n'est pas sécurisé\". Vos visiteurs partent immédiatement.", color: "#ef4444", delay: 0 },
-            { icon: "ti-lock-open", title: "Données clients exposées", desc: "Sans protection, les informations que vos clients saisissent sur votre site peuvent être interceptées.", color: "#f59e0b", delay: 150 },
-            { icon: "ti-trending-down", title: "Ventes perdues", desc: "85% des visiteurs quittent un site non sécurisé avant même d'avoir vu votre offre.", color: "#a855f7", delay: 300 },
-          ].map((item) => (
-            <AnimatedSection key={item.title} delay={item.delay}>
-              <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", transition: "border-color 0.3s, transform 0.3s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.5)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: item.color, display: "block", marginBottom: "14px" }}></i>
-                <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "10px" }}>{item.title}</p>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
-              </div>
-            </AnimatedSection>
+
+      <section className="lk-section lk-problem">
+        <div className="lk-kicker">LE PROBLÈME</div>
+        <h2>Le vibe coding a rendu le shipping facile.<br /><em>La sécurité, pas encore.</em></h2>
+        <p className="lk-section-copy">
+          Aujourd'hui, tu peux passer de zéro à un SaaS fonctionnel en quelques jours.
+          Mais quand tu es solo maker, personne ne te dit ce qui est dangereux dans ce que tu viens de shipper.
+        </p>
+
+        <div className="lk-grid">
+          {problems.map((problem) => (
+            <article className="lk-problem-card" key={problem.title}>
+              <div className="lk-icon">{problem.icon}</div>
+              <h3>{problem.title}</h3>
+              <p>{problem.text}</p>
+            </article>
           ))}
         </div>
       </section>
 
-      {/* Comment ça marche */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Comment ça marche ?</h2>
-              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>3 étapes, 5 secondes</p>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-            {[
-              { step: "01", title: "Entrez votre adresse", desc: "Tapez l'adresse de votre site. Rien à installer.", icon: "ti-world", delay: 0 },
-              { step: "02", title: "Lokky analyse tout", desc: "En 5 secondes, tous les points de sécurité sont vérifiés.", icon: "ti-search", delay: 150 },
-              { step: "03", title: "Recevez votre rapport", desc: "Score A à F et instructions claires pour corriger.", icon: "ti-shield-check", delay: 300 },
-            ].map((item) => (
-              <AnimatedSection key={item.step} delay={item.delay}>
-                <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", textAlign: "center", transition: "border-color 0.3s, transform 0.3s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.5)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                  <p style={{ fontSize: "32px", fontWeight: "500", color: "rgba(168,85,247,0.3)", marginBottom: "12px", fontFamily: "monospace" }}>{item.step}</p>
-                  <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: "#a855f7", display: "block", marginBottom: "12px" }}></i>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.title}</p>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
-                </div>
-              </AnimatedSection>
-            ))}
+      <section className="lk-section lk-solution">
+        <div className="lk-solution-copy">
+          <div className="lk-kicker">LA SOLUTION</div>
+          <h2>Ton <em>security co-pilot</em><br />avant le lancement.</h2>
+          <p>
+            Lokky transforme un scan de sécurité en une réponse simple :
+            <strong> ce qui va bien, ce qui ne va pas et ce que tu dois faire ensuite.</strong>
+          </p>
+          <Link href="#scanner" className="lk-button">Scanner mon SaaS gratuitement →</Link>
+        </div>
+        <div className="lk-report">
+          <div className="lk-report-head">
+            <div><span className="lk-mini-label">SECURITY SCORE</span><strong>72 / 100</strong></div>
+            <span className="lk-score">B</span>
           </div>
+          <div className="lk-report-row ok"><span>✓</span> HTTPS & certificat <b>OK</b></div>
+          <div className="lk-report-row warn"><span>!</span> Security headers <b>À corriger</b></div>
+          <div className="lk-report-row danger"><span>!</span> Configuration exposée <b>Risque</b></div>
+          <div className="lk-fix">→ Comprendre le problème &nbsp; → Voir comment corriger</div>
         </div>
       </section>
 
-      {/* Features */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Tout ce que Lokky vérifie</h2>
-              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Sans jargon — juste ce que ça veut dire pour votre business</p>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
-            {[
-              { icon: "ti-lock", title: "Votre site est-il chiffré ?", desc: "On vérifie que la connexion entre vos visiteurs et votre site est sécurisée. Sans ça, Chrome affiche une alerte rouge.", delay: 0 },
-              { icon: "ti-shield-check", title: "Vos données sont-elles protégées ?", desc: "On vérifie que votre site bloque les attaques les plus courantes qui permettent de voler les données de vos clients.", delay: 150 },
-              { icon: "ti-bell", title: "Alertes avant que ça expire", desc: "Recevez un email 7 jours avant que votre protection expire — vous ne serez jamais pris par surprise.", delay: 0 },
-              { icon: "ti-book", title: "Comment corriger ?", desc: "Pour chaque problème, Lokky vous donne les étapes exactes selon votre type de site (Shopify, WordPress, Vercel...).", delay: 150 },
-            ].map((item) => (
-              <AnimatedSection key={item.title} delay={item.delay}>
-                <div style={{ display: "flex", gap: "16px", background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", transition: "border-color 0.3s, transform 0.3s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.5)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                  <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: "#a855f7", flexShrink: 0, marginTop: "2px" }}></i>
-                  <div>
-                    <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.title}</p>
-                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
+      <section className="lk-section lk-how">
+        <div className="lk-kicker">COMMENT ÇA MARCHE</div>
+        <h2>De ton SaaS à <em>“ship it”</em>.</h2>
+        <div className="lk-steps">
+          {steps.map(([number, title, text]) => (
+            <article key={number} className="lk-step">
+              <span>{number}</span>
+              <h3>{title}</h3>
+              <p>{text}</p>
+            </article>
+          ))}
         </div>
       </section>
 
-      {/* Pricing */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Tarifs simples</h2>
-              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Commencez gratuitement — évoluez selon vos besoins</p>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-            {[
-              { name: "Starter", price: "Gratuit", desc: "Pour découvrir", features: ["1 scan/mois", "Score A à F", "Rapport de base", "Guides détaillés"], cta: "Commencer gratuitement", delay: 0 },
-              { name: "Pro", price: "9€/mois", desc: "Pour les makers actifs", features: ["20 scans/mois", "Alertes email auto", "Historique complet", "Lien partageable"], highlight: true, cta: "Choisir Pro", delay: 150 },
-              { name: "Agence", price: "39€/mois", desc: "Pour les pros", features: ["Scans illimités", "Scan auto quotidien", "Rapports exportables", "Support prioritaire"], cta: "Choisir Agence", delay: 300 },
-            ].map((plan) => (
-              <AnimatedSection key={plan.name} delay={plan.delay}>
-                <div style={{ background: plan.highlight ? "rgba(168,85,247,0.1)" : "#0d0018", border: plan.highlight ? "2px solid #a855f7" : "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", position: "relative", height: "100%" }}>
-                  {plan.highlight && (
-                    <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "10px", fontWeight: "700", padding: "3px 12px", borderRadius: "20px", whiteSpace: "nowrap" }}>Le plus populaire</div>
-                  )}
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: plan.highlight ? "#c084fc" : "#fff", marginBottom: "4px" }}>{plan.name}</p>
-                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginBottom: "16px" }}>{plan.desc}</p>
-                  <p style={{ fontSize: "26px", fontWeight: "500", color: "#fff", marginBottom: "20px" }}>{plan.price}</p>
-                  <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
-                    {plan.features.map((f) => (
-                      <li key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
-                        <i className="ti ti-check" style={{ fontSize: "12px", color: "#a855f7" }}></i>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/register" style={{ display: "block", textAlign: "center", background: plan.highlight ? "linear-gradient(135deg, #a855f7, #6366f1)" : "transparent", color: "#fff", border: plan.highlight ? "none" : "0.5px solid rgba(168,85,247,0.3)", borderRadius: "6px", padding: "10px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
-                    {plan.cta}
-                  </Link>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
+      <section id="scanner" className="lk-final-cta">
+        <div className="lk-kicker">AVANT DE SHIPPER</div>
+        <h2>Ton SaaS fonctionne.<br /><em>Mais est-il safe ?</em></h2>
+        <p>Colle ton URL. Tu auras une première réponse gratuitement.</p>
+        <div className="lk-final-scanner"><PublicScanner /></div>
       </section>
 
-      {/* FAQ */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff" }}>Questions fréquentes</h2>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {[
-              { q: "Est-ce que je dois être développeur ?", a: "Non ! Lokky est fait pour les créateurs et entrepreneurs. Tout est expliqué en français simple, sans jargon technique." },
-              { q: "Est-ce que Lokky accède à mon site ?", a: "Non. Lokky analyse uniquement les informations publiques de votre site — celles que n'importe quel visiteur peut voir." },
-              { q: "Combien de temps prend une vérification ?", a: "Entre 3 et 10 secondes. Vous recevez votre rapport immédiatement après." },
-              { q: "Que faire si mon score est mauvais ?", a: "Lokky vous donne les étapes exactes pour corriger chaque problème, adaptées à votre type de site." },
-            ].map((item, i) => (
-              <AnimatedSection key={i} delay={i * 100}>
-                <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "10px", padding: "20px 24px", transition: "border-color 0.3s" }}
-                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.4)"}
-                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"}>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.q}</p>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.a}</p>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "120px 40px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <AnimatedSection>
-          <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "40px", fontWeight: "500", color: "#fff", marginBottom: "12px", lineHeight: "1.2" }}>
-              Votre site est-il<br /><span style={{ color: "#a855f7", fontStyle: "italic" }}>vraiment protégé ?</span>
-            </h2>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)", marginBottom: "32px" }}>
-              Vérifiez maintenant gratuitement — résultat en 5 secondes.
-            </p>
-            <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "14px", fontWeight: "600", padding: "16px 36px", borderRadius: "8px", textDecoration: "none" }}>
-              <i className="ti ti-search" style={{ fontSize: "15px" }}></i>
-              Vérifier mon site gratuitement
-            </Link>
-            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "12px" }}>Sans carte bancaire • Sans inscription • 100% gratuit</p>
-          </div>
-        </AnimatedSection>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "24px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "14px", color: "#a855f7" }}></i>
-          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>LOKKY</span>
-        </div>
-        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>© 2026 Lokky — Sécurité simplifiée pour tous</p>
-        <Link href="/pricing" style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Tarifs</Link>
+      <footer className="lk-footer">
+        <Link href="/" className="lk-logo"><span className="lk-logo-mark">◈</span> LOKKY</Link>
+        <span>Security for the vibe coding era.</span>
       </footer>
 
-      <FloatingReview />
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.8); }
-        }
+      <style jsx global>{`
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; background: #07050b; }
+        .lk-page { min-height: 100vh; overflow: hidden; color: #fff; background: radial-gradient(circle at 50% 0%, #1a0d2c 0%, #0b0710 32%, #07050b 70%); font-family: var(--font-sans), Inter, Arial, sans-serif; position: relative; }
+        .lk-glow { position: absolute; width: 520px; height: 520px; border-radius: 50%; filter: blur(120px); opacity: .16; pointer-events: none; }
+        .lk-glow-one { background: #8b5cf6; top: 80px; left: -280px; }
+        .lk-glow-two { background: #6366f1; top: 500px; right: -300px; }
+        .lk-nav { height: 68px; max-width: 1120px; margin: 0 auto; padding: 0 24px; display: flex; align-items: center; justify-content: space-between; position: relative; z-index: 5; border-bottom: 1px solid rgba(255,255,255,.07); }
+        .lk-logo { color: #fff; text-decoration: none; font-weight: 700; letter-spacing: .14em; font-size: 14px; display: flex; align-items: center; gap: 9px; }
+        .lk-logo-mark { color: #a855f7; font-size: 18px; }
+        .lk-nav-links { display: flex; align-items: center; gap: 24px; }
+        .lk-nav-links a { color: rgba(255,255,255,.58); text-decoration: none; font-size: 13px; }
+        .lk-nav-links a:hover { color: #fff; }
+        .lk-nav-cta { color: #fff !important; background: #8b5cf6; padding: 9px 15px; border-radius: 8px; box-shadow: 0 8px 30px rgba(139,92,246,.2); }
+        .lk-hero { max-width: 980px; margin: 0 auto; padding: 105px 24px 70px; text-align: center; position: relative; z-index: 1; }
+        .lk-badge { display: inline-flex; align-items: center; gap: 8px; border: 1px solid rgba(168,85,247,.28); background: rgba(168,85,247,.08); color: #c4b5fd; border-radius: 999px; padding: 7px 13px; font-size: 12px; margin-bottom: 28px; }
+        .lk-badge span { width: 6px; height: 6px; border-radius: 50%; background: #a855f7; box-shadow: 0 0 12px #a855f7; }
+        .lk-hero h1 { font-size: clamp(44px, 7vw, 76px); line-height: 1.02; letter-spacing: -.045em; font-weight: 600; margin: 0 auto 25px; max-width: 900px; }
+        .lk-hero h1 em, .lk-section h2 em, .lk-final-cta h2 em { color: #a855f7; font-style: normal; }
+        .lk-hero-copy { max-width: 690px; margin: 0 auto 40px; color: rgba(255,255,255,.55); font-size: 16px; line-height: 1.75; }
+        .lk-hero-card { max-width: 620px; margin: 0 auto; padding: 12px; background: rgba(16,10,24,.92); border: 1px solid rgba(168,85,247,.18); border-radius: 16px; box-shadow: 0 30px 100px rgba(0,0,0,.35); text-align: left; }
+        .lk-card-top { height: 28px; display: flex; align-items: center; gap: 6px; padding: 0 7px; color: rgba(255,255,255,.28); font: 11px ui-monospace, SFMono-Regular, Menlo, monospace; }
+        .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }.dot.red{background:#ef4444}.dot.yellow{background:#f59e0b}.dot.green{background:#22c55e}.lk-card-top span:last-child{margin-left:5px}
+        .lk-hero-card :global(> div) { max-width: none !important; margin: 0 !important; }
+        .lk-trust { display: flex; justify-content: center; flex-wrap: wrap; gap: 22px; margin-top: 18px; color: rgba(255,255,255,.3); font-size: 11px; }
+        .lk-section { max-width: 980px; margin: 0 auto; padding: 125px 24px; position: relative; z-index: 1; }
+        .lk-kicker { color: #a855f7; font: 600 11px ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .16em; margin-bottom: 18px; }
+        .lk-section h2, .lk-final-cta h2 { font-size: clamp(34px, 5vw, 54px); line-height: 1.08; letter-spacing: -.035em; margin: 0 0 22px; font-weight: 600; }
+        .lk-section-copy { max-width: 650px; color: rgba(255,255,255,.48); font-size: 16px; line-height: 1.8; margin-bottom: 42px; }
+        .lk-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+        .lk-problem-card { padding: 25px; border: 1px solid rgba(255,255,255,.08); background: rgba(255,255,255,.025); border-radius: 14px; }
+        .lk-icon { font-size: 21px; margin-bottom: 28px; }
+        .lk-problem-card h3, .lk-step h3 { font-size: 15px; margin: 0 0 9px; }
+        .lk-problem-card p, .lk-step p { color: rgba(255,255,255,.4); font-size: 13px; line-height: 1.7; margin: 0; }
+        .lk-solution { display: grid; grid-template-columns: 1fr 1fr; gap: 70px; align-items: center; border-top: 1px solid rgba(255,255,255,.07); border-bottom: 1px solid rgba(255,255,255,.07); }
+        .lk-solution-copy p { color: rgba(255,255,255,.45); line-height: 1.8; font-size: 15px; max-width: 480px; margin-bottom: 30px; }.lk-solution-copy strong{color:rgba(255,255,255,.8)}
+        .lk-button { display: inline-block; text-decoration: none; color: #fff; background: #8b5cf6; border-radius: 8px; padding: 12px 17px; font-size: 13px; font-weight: 600; }
+        .lk-report { background: #0d0913; border: 1px solid rgba(168,85,247,.2); border-radius: 14px; overflow: hidden; box-shadow: 0 30px 80px rgba(0,0,0,.3); }
+        .lk-report-head { padding: 22px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,.07); }.lk-report-head strong{display:block;font-size:30px;margin-top:4px}.lk-mini-label{font:10px ui-monospace;color:rgba(255,255,255,.3)}.lk-score{display:grid;place-items:center;width:52px;height:52px;border-radius:12px;color:#f59e0b;border:1px solid #f59e0b;background:rgba(245,158,11,.08);font-size:24px;font-weight:700}
+        .lk-report-row { padding: 15px 22px; border-bottom: 1px solid rgba(255,255,255,.055); display: flex; align-items: center; gap: 10px; font-size: 13px; color: rgba(255,255,255,.65); }.lk-report-row b{margin-left:auto;font-size:11px}.ok span,.ok b{color:#22c55e}.warn span,.warn b{color:#f59e0b}.danger span,.danger b{color:#ef4444}
+        .lk-fix { padding: 15px 22px; color: #c4b5fd; font-size: 11px; background: rgba(168,85,247,.06); }
+        .lk-how { text-align: center; }.lk-steps { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;text-align:left;margin-top:48px }.lk-step{padding:25px;border-top:1px solid rgba(168,85,247,.35);background:rgba(255,255,255,.02)}.lk-step>span{font:11px ui-monospace;color:#a855f7}.lk-step h3{margin-top:28px}
+        .lk-final-cta { max-width: 980px; margin: 0 auto 80px; padding: 90px 24px; text-align: center; border: 1px solid rgba(168,85,247,.16); border-radius: 20px; background: radial-gradient(circle at 50% 0%, rgba(168,85,247,.12), rgba(255,255,255,.02) 55%); position: relative; z-index: 1; }.lk-final-cta p{color:rgba(255,255,255,.4);font-size:14px;margin-bottom:35px}.lk-final-scanner{max-width:620px;margin:0 auto;text-align:left}.lk-final-scanner :global(> div){max-width:none!important}
+        .lk-footer{max-width:1120px;margin:0 auto;padding:30px 24px 45px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;color:rgba(255,255,255,.25);font-size:11px;position:relative;z-index:1}
+        @media (max-width: 760px) { .lk-nav{padding:0 18px}.lk-nav-links{gap:12px}.lk-nav-links a:first-child{display:none}.lk-nav-links a{font-size:12px}.lk-hero{padding-top:75px}.desktop{display:none}.lk-grid,.lk-steps,.lk-solution{grid-template-columns:1fr}.lk-solution{gap:40px}.lk-section{padding:90px 20px}.lk-final-cta{margin:0 15px 50px;padding:65px 15px}.lk-footer{flex-direction:column;gap:15px}.lk-trust{gap:10px 16px}.lk-hero-card{padding:7px}.lk-hero-card :global(input){min-width:0}.lk-hero-card :global(button){padding-left:13px!important;padding-right:13px!important} }
       `}</style>
-      
-    </div>
+    </main>
   );
 }
