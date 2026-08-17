@@ -16,7 +16,7 @@ export default function Home() {
     <div className="lk-glow lk-glow-one" /><div className="lk-glow lk-glow-two" />
     <header className="lk-nav"><Link href="/" className="lk-logo"><span className="lk-logo-mark">◈</span>LOKKY</Link><nav className="lk-nav-links"><a href="#demo">Démo</a><a href="#pricing">Pricing</a><Link href="/login">Connexion</Link><Link href="/register" className="lk-nav-cta">Commencer →</Link></nav></header>
 
-    <section className="lk-hero">
+    <section id="top-scan" className="lk-hero">
       <div className="lk-badge"><span /> Pour les SaaS makers & vibe coders</div>
       <h1>Tu as vibe-codé ton SaaS.<br /><em>Est-il prêt pour la prod ?</em></h1>
       <p className="lk-hero-copy">Cursor, Claude, Lovable, Bolt… construisent ton SaaS en un temps record. Lokky vérifie ce que tu risques d'avoir oublié avant de le mettre entre les mains de tes utilisateurs.</p>
