@@ -6,12 +6,15 @@ import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 
 const navItems = [
-  { href: "/dashboard", label: "Vue d'ensemble", icon: "ti-home" },
+  { href: "/dashboard", label: "Overview", icon: "ti-home" },
   { href: "/dashboard/scanner", label: "Scanner", icon: "ti-search" },
-  { href: "/dashboard/history", label: "Historique", icon: "ti-chart-bar" },
+  { href: "/dashboard/history", label: "Mes scans", icon: "ti-chart-bar" },
   { href: "/dashboard/alerts", label: "Alertes", icon: "ti-bell" },
-  { href: "/dashboard/guides", label: "Guides de correction", icon: "ti-book" },
-  { href: "/dashboard/upgrade", label: "Mon abonnement", icon: "ti-bolt" },
+  { href: "/dashboard/guides", label: "Comment corriger", icon: "ti-book" },
+];
+
+const secondaryItems = [
+  { href: "/dashboard/upgrade", label: "Mon plan", icon: "ti-bolt" },
   { href: "/dashboard/settings", label: "Paramètres", icon: "ti-settings" },
 ];
 
@@ -25,112 +28,42 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
   useEffect(() => {
     const check = () => setIsMobile(window.innerWidth <= 1024);
-    check();
-    window.addEventListener("resize", check);
-    return () => window.removeEventListener("resize", check);
+    check(); window.addEventListener("resize", check); return () => window.removeEventListener("resize", check);
   }, []);
 
   useEffect(() => {
     supabase.auth.getUser().then(({ data }) => {
-      if (!data.user) router.push("/login");
-      else {
-        setEmail(data.user.email ?? "");
-        setLoading(false);
-      }
+      if (!data.user) router.push("/login"); else { setEmail(data.user.email ?? ""); setLoading(false); }
     });
   }, [router]);
 
-  useEffect(() => {
-    setMenuOpen(false);
-  }, [pathname]);
+  useEffect(() => { setMenuOpen(false); }, [pathname]);
 
-  async function handleLogout() {
-    await supabase.auth.signOut();
-    router.push("/login");
-  }
+  async function handleLogout() { await supabase.auth.signOut(); router.push("/login"); }
 
-  if (loading) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#0a1929" }}>
-      <p style={{ color: "#00d4aa", fontSize: "14px" }}>Chargement...</p>
-    </div>
-  );
+  if (loading) return <div className="lk-loading"><div className="lk-loading-mark">◈</div><p>Préparation de ton espace…</p><style jsx>{`.lk-loading{min-height:100vh;display:grid;place-items:center;background:#08060b;color:#64748b;font-family:Inter,Arial,sans-serif}.lk-loading-mark{color:#a855f7;font-size:25px;text-align:center}.lk-loading p{font-size:11px;margin-top:-45px}`}</style></div>;
 
-  return (
-    <div style={{ minHeight: "100vh", background: "#0d1f2d" }}>
+  const renderNav = (items: typeof navItems) => items.map((item) => {
+    const isActive = pathname === item.href || (item.href !== "/dashboard" && pathname.startsWith(item.href));
+    return <Link key={item.href} href={item.href} className={`lk-nav-item ${isActive ? "active" : ""}`}><i className={`ti ${item.icon}`} />{item.label}</Link>;
+  });
 
-      {/* Mobile header */}
-      {isMobile && (
-        <div style={{ position: "sticky", top: 0, zIndex: 20, background: "#0a1929", borderBottom: "0.5px solid #1a3a4a", padding: "0 16px", height: "56px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-          <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-            <i className="ti ti-shield-check" style={{ fontSize: "16px", color: "#00d4aa" }}></i>
-            <span style={{ fontSize: "14px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
-          </Link>
-          <button onClick={() => setMenuOpen(!menuOpen)} style={{ background: "none", border: "none", cursor: "pointer", color: "#e0f0f8", fontSize: "20px" }}>
-          <span style={{ fontSize: "24px", color: "#e0f0f8" }}>{menuOpen ? "✕" : "☰"}</span>
-          </button>
-        </div>
-      )}
+  const sidebar = <aside className="lk-sidebar">
+    <Link href="/dashboard" className="lk-brand"><span>◈</span> LOKKY</Link>
+    <div className="lk-side-label">WORKSPACE</div>
+    <nav>{renderNav(navItems)}</nav>
+    <div className="lk-side-label secondary">ACCOUNT</div>
+    <nav>{renderNav(secondaryItems)}</nav>
+    <div className="lk-side-bottom"><div className="lk-user"><div className="lk-avatar">{email.charAt(0).toUpperCase() || "U"}</div><div><strong>{email.split("@")[0] || "Maker"}</strong><span>{email}</span></div></div><button onClick={handleLogout}>Déconnexion</button></div>
+  </aside>;
 
-      {/* Mobile menu overlay */}
-      {menuOpen && isMobile && (
-        <div style={{ position: "fixed", inset: 0, zIndex: 15, background: "rgba(0,0,0,0.5)" }} onClick={() => setMenuOpen(false)}>
-          <div style={{ width: "260px", height: "100vh", background: "#0a1929", borderRight: "0.5px solid #1a3a4a", display: "flex", flexDirection: "column" }} onClick={(e) => e.stopPropagation()}>
-            <div style={{ padding: "20px 16px", borderBottom: "0.5px solid #1a3a4a" }}>
-              <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-                <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
-                <span style={{ fontSize: "16px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
-              </Link>
-            </div>
-            <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: "2px" }}>
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link key={item.href} href={item.href} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "10px 12px", borderRadius: "6px", fontSize: "14px", textDecoration: "none", background: isActive ? "rgba(0,212,170,0.1)" : "transparent", color: isActive ? "#00d4aa" : "#5a8a9f", borderLeft: isActive ? "2px solid #00d4aa" : "2px solid transparent" }}>
-                    <i className={`ti ${item.icon}`} style={{ fontSize: "16px" }}></i>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div style={{ padding: "16px", borderTop: "0.5px solid #1a3a4a" }}>
-              <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email}</p>
-              <button onClick={handleLogout} style={{ fontSize: "11px", color: "#5a8a9f", background: "none", border: "none", cursor: "pointer" }}>→ Déconnexion</button>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {/* Desktop + Mobile main */}
-      <div style={{ display: "flex" }}>
-        {!isMobile && (
-          <div style={{ position: "fixed", height: "100vh", width: "220px", background: "#0a1929", borderRight: "0.5px solid #1a3a4a", display: "flex", flexDirection: "column" }}>
-            <div style={{ padding: "20px 16px", borderBottom: "0.5px solid #1a3a4a" }}>
-              <Link href="/dashboard" style={{ display: "flex", alignItems: "center", gap: "8px", textDecoration: "none" }}>
-                <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#00d4aa" }}></i>
-                <span style={{ fontSize: "16px", fontWeight: "500", color: "#00d4aa", letterSpacing: "1px" }}>LOKKY</span>
-              </Link>
-            </div>
-            <nav style={{ flex: 1, padding: "12px 8px", display: "flex", flexDirection: "column", gap: "2px" }}>
-              {navItems.map((item) => {
-                const isActive = pathname === item.href;
-                return (
-                  <Link key={item.href} href={item.href} style={{ display: "flex", alignItems: "center", gap: "10px", padding: "8px 12px", borderRadius: "6px", fontSize: "13px", textDecoration: "none", background: isActive ? "rgba(0,212,170,0.1)" : "transparent", color: isActive ? "#00d4aa" : "#5a8a9f", borderLeft: isActive ? "2px solid #00d4aa" : "2px solid transparent" }}>
-                    <i className={`ti ${item.icon}`} style={{ fontSize: "15px" }}></i>
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </nav>
-            <div style={{ padding: "16px", borderTop: "0.5px solid #1a3a4a" }}>
-              <p style={{ fontSize: "11px", color: "#5a8a9f", marginBottom: "8px", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{email}</p>
-              <button onClick={handleLogout} style={{ fontSize: "11px", color: "#5a8a9f", background: "none", border: "none", cursor: "pointer" }}>→ Déconnexion</button>
-            </div>
-          </div>
-        )}
-        <main style={{ flex: 1, marginLeft: isMobile ? "0" : "220px", padding: isMobile ? "16px" : "32px", minHeight: "100vh", background: "#0d1f2d", maxWidth: "100%" }}>
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+  return <div className="lk-shell">
+    {isMobile && <header className="lk-mobile-head"><Link href="/dashboard" className="lk-brand"><span>◈</span> LOKKY</Link><button onClick={() => setMenuOpen(!menuOpen)}>{menuOpen ? "✕" : "☰"}</button></header>}
+    {isMobile && menuOpen && <div className="lk-mobile-overlay" onClick={() => setMenuOpen(false)}><div className="lk-mobile-menu" onClick={(e) => e.stopPropagation()}>{sidebar}</div></div>}
+    {!isMobile && sidebar}
+    <main className="lk-main">{children}</main>
+    <style jsx global>{`
+      *{box-sizing:border-box}.lk-shell{min-height:100vh;background:#08060b;color:#f8fafc;font-family:var(--font-sans),Inter,Arial,sans-serif}.lk-sidebar{position:fixed;left:0;top:0;width:232px;height:100vh;background:#0b0910;border-right:1px solid rgba(255,255,255,.07);display:flex;flex-direction:column;padding:18px 12px;z-index:30}.lk-brand{display:flex;align-items:center;gap:9px;color:#fff;text-decoration:none;font-size:14px;font-weight:700;letter-spacing:.13em;padding:8px 10px 24px}.lk-brand span{color:#a855f7;font-size:18px}.lk-side-label{font:600 9px ui-monospace,SFMono-Regular,Menlo,monospace;letter-spacing:.14em;color:#475569;padding:0 10px 8px}.lk-side-label.secondary{margin-top:22px}.lk-nav-item{display:flex;align-items:center;gap:10px;padding:9px 10px;margin:2px 0;border-radius:8px;color:#64748b;text-decoration:none;font-size:12px;transition:.18s}.lk-nav-item i{font-size:15px;width:16px;text-align:center}.lk-nav-item:hover{color:#cbd5e1;background:rgba(255,255,255,.035)}.lk-nav-item.active{color:#c4b5fd;background:rgba(139,92,246,.1);box-shadow:inset 2px 0 #8b5cf6}.lk-side-bottom{margin-top:auto;border-top:1px solid rgba(255,255,255,.07);padding:15px 8px 4px}.lk-user{display:flex;align-items:center;gap:9px;margin-bottom:12px}.lk-avatar{width:28px;height:28px;border-radius:8px;background:rgba(139,92,246,.14);color:#c4b5fd;display:grid;place-items:center;font-size:11px;font-weight:600}.lk-user strong{display:block;color:#cbd5e1;font-size:11px;font-weight:500;max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lk-user span{display:block;color:#475569;font-size:9px;max-width:135px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.lk-side-bottom button{border:0;background:none;color:#64748b;padding:0;font-size:10px;cursor:pointer}.lk-main{margin-left:232px;min-height:100vh;padding:42px 48px;background:radial-gradient(circle at 80% 0%,rgba(139,92,246,.05),transparent 30%)}.lk-mobile-head{display:flex;align-items:center;justify-content:space-between;height:58px;padding:0 16px;background:#0b0910;border-bottom:1px solid rgba(255,255,255,.07);position:sticky;top:0;z-index:20}.lk-mobile-head .lk-brand{padding:0}.lk-mobile-head button{border:0;background:none;color:#cbd5e1;font-size:21px;cursor:pointer}.lk-mobile-overlay{position:fixed;inset:58px 0 0;background:rgba(0,0,0,.55);z-index:25}.lk-mobile-menu{width:275px;height:100%;background:#0b0910}.lk-mobile-menu .lk-sidebar{position:static;width:100%;height:100%;border:0}.lk-mobile-menu .lk-side-bottom{display:block}@media(max-width:1024px){.lk-main{margin-left:0;padding:28px 20px}}@media(max-width:600px){.lk-main{padding:22px 14px}}
+    `}</style>
+  </div>;
 }
