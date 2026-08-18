@@ -1,366 +1,52 @@
 "use client";
 
 import Link from "next/link";
-import FloatingReviewEN from "@/components/FloatingReviewEN";
 import PublicScanner from "@/components/PublicScanner";
-import ScrollingBanner from "@/components/ScrollingBanner";
-import { useEffect, useRef, useState } from "react";
+import VulnerabilityDemo from "@/components/VulnerabilityDemo";
 
-function useInView(threshold = 0.1) {
-  const ref = useRef<HTMLDivElement>(null);
-  const [inView, setInView] = useState(false);
-  useEffect(() => {
-    const observer = new IntersectionObserver(([entry]) => {
-      if (entry.isIntersecting) setInView(true);
-    }, { threshold });
-    if (ref.current) observer.observe(ref.current);
-    return () => observer.disconnect();
-  }, []);
-  return { ref, inView };
-}
-
-function AnimatedSection({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
-  const { ref, inView } = useInView();
-  return (
-    <div ref={ref} style={{ opacity: inView ? 1 : 0, transform: inView ? "translateY(0)" : "translateY(30px)", transition: `opacity 0.7s ease ${delay}ms, transform 0.7s ease ${delay}ms` }}>
-      {children}
-    </div>
-  );
-}
-
-function AnimatedCounter({ target, suffix = "" }: { target: number; suffix?: string }) {
-  const { ref, inView } = useInView();
-  const [count, setCount] = useState(0);
-  useEffect(() => {
-    if (!inView) return;
-    let start = 0;
-    const step = target / (2000 / 16);
-    const timer = setInterval(() => {
-      start += step;
-      if (start >= target) { setCount(target); clearInterval(timer); }
-      else setCount(Math.floor(start));
-    }, 16);
-    return () => clearInterval(timer);
-  }, [inView, target]);
-  return <span ref={ref}>{count}{suffix}</span>;
-}
-
-function TerminalAnimation() {
-  const lines = [
-    { text: "$ lokky scan --target myproject.com", color: "rgba(255,255,255,0.3)", delay: 0 },
-    { text: "✓ Your site is properly encrypted", color: "#a855f7", delay: 800 },
-    { text: "✗ Your site can be blocked by Chrome", color: "#ef4444", delay: 1600 },
-    { text: "⚠ Your customers' data can be intercepted", color: "#f59e0b", delay: 2400 },
-  ];
-  const [visibleLines, setVisibleLines] = useState<number[]>([]);
-  const [typedText, setTypedText] = useState("");
-
-  useEffect(() => {
-    const fullText = lines[0].text;
-    let i = 0;
-    const typeTimer = setInterval(() => {
-      if (i <= fullText.length) { setTypedText(fullText.slice(0, i)); i++; }
-      else {
-        clearInterval(typeTimer);
-        lines.slice(1).forEach((_, idx) => {
-          setTimeout(() => setVisibleLines(prev => [...prev, idx + 1]), lines[idx + 1].delay - lines[0].delay);
-        });
-      }
-    }, 40);
-    return () => clearInterval(typeTimer);
-  }, []);
-
-  return (
-    <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.2)", borderRadius: "12px", padding: "20px", maxWidth: "500px", margin: "0 auto 32px", textAlign: "left" }}>
-      <div style={{ display: "flex", alignItems: "center", gap: "6px", marginBottom: "14px" }}>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#ef4444" }}></div>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#f59e0b" }}></div>
-        <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#a855f7" }}></div>
-        <span style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginLeft: "8px", fontFamily: "monospace" }}>lokky — scanner</span>
-      </div>
-      <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", fontFamily: "monospace", marginBottom: "10px", minHeight: "16px" }}>
-        {typedText}<span style={{ animation: "blink 1s infinite" }}>|</span>
-      </p>
-      {lines.slice(1).map((line, i) => (
-        <p key={i} style={{ fontSize: "12px", color: line.color, fontFamily: "monospace", marginBottom: "4px", opacity: visibleLines.includes(i + 1) ? 1 : 0, transform: visibleLines.includes(i + 1) ? "translateX(0)" : "translateX(-10px)", transition: "opacity 0.4s ease, transform 0.4s ease" }}>
-          {line.text}
-        </p>
-      ))}
-      <style>{`@keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }`}</style>
-    </div>
-  );
-}
-
-function FloatingParticles() {
-  const [particles, setParticles] = useState<Array<{ width: number; height: number; opacity: number; left: number; top: number; duration: number; delay: number; }>>([]);
-  useEffect(() => {
-    setParticles(Array.from({ length: 20 }).map(() => ({
-      width: Math.random() * 3 + 1, height: Math.random() * 3 + 1,
-      opacity: Math.random() * 0.3 + 0.05, left: Math.random() * 100,
-      top: Math.random() * 100, duration: Math.random() * 10 + 10, delay: Math.random() * 10,
-    })));
-  }, []);
-  return (
-    <div style={{ position: "fixed", inset: 0, pointerEvents: "none", zIndex: 0, overflow: "hidden" }}>
-      {particles.map((p, i) => (
-        <div key={i} style={{ position: "absolute", width: `${p.width}px`, height: `${p.height}px`, borderRadius: "50%", background: "#a855f7", opacity: p.opacity, left: `${p.left}%`, top: `${p.top}%`, animation: `float ${p.duration}s infinite ease-in-out`, animationDelay: `${p.delay}s` }} />
-      ))}
-      <style>{`@keyframes float { 0%, 100% { transform: translateY(0px) translateX(0px); } 25% { transform: translateY(-30px) translateX(10px); } 50% { transform: translateY(-10px) translateX(-15px); } 75% { transform: translateY(-25px) translateX(5px); } }`}</style>
-    </div>
-  );
-}
+const problems = [
+  ["🔐", "Auth & access", "A route or piece of data may be accessible when it shouldn't be."],
+  ["🔑", "Exposed secrets", "A sensitive key can accidentally end up in your frontend or bundle."],
+  ["🚀", "Shipping too fast", "You can launch in days without knowing what you forgot to secure."],
+];
+const steps = [
+  ["01", "Paste your URL", "Give Lokky the URL of your SaaS."],
+  ["02", "Lokky scans", "We check the security signals visible from the outside."],
+  ["03", "Fix & re-scan", "Understand the issue, fix it, then verify the result."],
+];
 
 export default function HomeEN() {
   return (
-    <div style={{ minHeight: "100vh", background: "#080010", fontFamily: "var(--font-sans)", position: "relative", overflowX: "hidden" }}>
-      <FloatingParticles />
-
-    {/* Header */}
-        <header style={{ borderBottom: "0.5px solid rgba(168,85,247,0.2)", padding: "0 40px", height: "60px", display: "flex", alignItems: "center", justifyContent: "space-between", position: "sticky", top: 0, background: "rgba(8,0,16,0.9)", backdropFilter: "blur(10px)", zIndex: 10 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "16px" }}>
-            <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <i className="ti ti-shield-check" style={{ fontSize: "18px", color: "#a855f7" }}></i>
-                <span style={{ fontSize: "16px", fontWeight: "500", color: "#fff", letterSpacing: "1px" }}>LOKKY</span>
-            </div>
-            <Link href="/" style={{ fontSize: "11px", color: "#a855f7", textDecoration: "none", border: "0.5px solid rgba(168,85,247,0.3)", padding: "3px 10px", borderRadius: "20px" }}>🇫🇷 FR</Link>
-            </div>
-        <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-          <Link href="/login" style={{ fontSize: "13px", color: "rgba(255,255,255,0.4)", textDecoration: "none" }}>Login</Link>
-          <Link href="/register" style={{ background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "13px", fontWeight: "600", padding: "8px 18px", borderRadius: "6px", textDecoration: "none" }}>Start for free</Link>
-        </div>
+    <main className="lk-page">
+      <header className="lk-nav">
+        <Link href="/en" className="lk-logo"><span>◈</span>LOKKY</Link>
+        <nav><a href="#demo">Demo</a><a href="#pricing">Pricing</a><Link href="/">FR</Link><Link href="/login">Log in</Link><Link href="/register" className="cta">Start for free →</Link></nav>
       </header>
 
-      {/* Hero */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "120px 40px 80px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <AnimatedSection>
-          <div style={{ display: "inline-flex", alignItems: "center", gap: "6px", background: "rgba(168,85,247,0.1)", border: "0.5px solid rgba(168,85,247,0.3)", borderRadius: "20px", padding: "5px 14px", marginBottom: "32px" }}>
-            <div style={{ width: "6px", height: "6px", borderRadius: "50%", background: "#a855f7", animation: "pulse 2s infinite" }}></div>
-            <span style={{ fontSize: "11px", color: "#c084fc" }}>Security made simple for makers & SaaS founders</span>
-          </div>
-          <h1 style={{ fontSize: "58px", fontWeight: "500", color: "#fff", lineHeight: "1.1", marginBottom: "24px" }}>
-            One vulnerability can<br />
-            <span style={{ color: "#a855f7", fontStyle: "italic" }}>cost you everything.</span>
-          </h1>
-          <p style={{ fontSize: "16px", color: "rgba(255,255,255,0.5)", lineHeight: "1.8", marginBottom: "48px", maxWidth: "520px", margin: "0 auto 48px" }}>
-            Lokky scans your website in 5 seconds and tells you exactly what to fix — no technical jargon.
-          </p>
-        </AnimatedSection>
-        <AnimatedSection delay={200}><TerminalAnimation /></AnimatedSection>
-        <AnimatedSection delay={400}><PublicScanner /></AnimatedSection>
+      <section className="hero">
+        <div className="badge"><span /> For SaaS makers & vibe coders</div>
+        <h1>You vibe-coded your SaaS.<br /><em>Is it ready to ship?</em></h1>
+        <p>Cursor, Claude, Lovable, Bolt… can build your SaaS in record time. Lokky checks what you may have forgotten before real users touch it.</p>
+        <div className="scanner"><div className="terminal"><i/><i/><i/><span>lokky / security scan</span></div><PublicScanner /></div>
+        <div className="trust"><span>✓ No credit card</span><span>✓ No signup to test</span><span>✓ Results in seconds</span></div>
       </section>
 
-      {/* Stats */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", borderBottom: "0.5px solid rgba(168,85,247,0.15)", padding: "28px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto", display: "flex", justifyContent: "center", gap: "80px" }}>
-          {[
-            { value: 500, suffix: "+", label: "Sites scanned" },
-            { value: 5, suffix: "s", label: "Scan time" },
-            { value: 100, suffix: "%", label: "Free to start" },
-          ].map((stat) => (
-            <div key={stat.label} style={{ textAlign: "center" }}>
-              <p style={{ fontSize: "28px", fontWeight: "500", color: "#a855f7" }}><AnimatedCounter target={stat.value} suffix={stat.suffix} /></p>
-              <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", marginTop: "4px" }}>{stat.label}</p>
-            </div>
-          ))}
-        </div>
-      </section>
+      <section className="section problem"><div className="kicker">THE PROBLEM</div><h2>Vibe coding made shipping easy.<br /><em>Security didn't get easier.</em></h2><p className="copy">When you're a solo maker, there is nobody checking the security of what you just built. Lokky gives you a simple answer before you ship.</p><div className="grid">{problems.map(([icon,title,text])=><article key={title}><div className="icon">{icon}</div><h3>{title}</h3><p>{text}</p></article>)}</div></section>
 
-      <ScrollingBanner />
+      <div id="demo"><VulnerabilityDemo /></div>
 
-      {/* Problems */}
-      <section style={{ maxWidth: "800px", margin: "0 auto", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <AnimatedSection>
-          <div style={{ textAlign: "center", marginBottom: "56px" }}>
-            <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>What happens when your site isn't secure</h2>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Real problems that cost you money</p>
-          </div>
-        </AnimatedSection>
-        <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-          {[
-            { icon: "ti-alert-triangle", title: "Red warning on your site", desc: "Chrome and Firefox block your site and display \"This site is not secure\". Your visitors leave immediately.", color: "#ef4444", delay: 0 },
-            { icon: "ti-lock-open", title: "Customer data exposed", desc: "Without protection, information your customers enter on your site can be intercepted by hackers.", color: "#f59e0b", delay: 150 },
-            { icon: "ti-trending-down", title: "Lost sales", desc: "85% of visitors leave an unsecured site before even seeing your offer.", color: "#a855f7", delay: 300 },
-          ].map((item) => (
-            <AnimatedSection key={item.title} delay={item.delay}>
-              <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", transition: "border-color 0.3s, transform 0.3s" }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.5)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: item.color, display: "block", marginBottom: "14px" }}></i>
-                <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "10px" }}>{item.title}</p>
-                <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
-              </div>
-            </AnimatedSection>
-          ))}
-        </div>
-      </section>
+      <section className="section solution"><div><div className="kicker">THE SOLUTION</div><h2>Your <em>security co-pilot</em><br />before launch.</h2><p className="copy">Lokky turns a security scan into a simple answer: <strong>what's good, what's wrong and what you should do next.</strong></p><Link href="/register" className="button">Create my free workspace →</Link></div><div className="report"><header><div><small>SECURITY SCORE</small><strong>72 / 100</strong></div><b>C</b></header><div>✓ <span>HTTPS & certificate</span><strong>OK</strong></div><div>! <span>Security headers</span><strong>Fix</strong></div><div>! <span>Exposed configuration</span><strong>Risk</strong></div><footer>→ Understand the problem &nbsp; → Ask Lokky how to fix it</footer></div></section>
 
-      {/* How it works */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>How does it work?</h2>
-              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>3 steps, 5 seconds</p>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-            {[
-              { step: "01", title: "Enter your URL", desc: "Type your website address. Nothing to install.", icon: "ti-world", delay: 0 },
-              { step: "02", title: "Lokky analyzes everything", desc: "In 5 seconds, all security points are checked automatically.", icon: "ti-search", delay: 150 },
-              { step: "03", title: "Get your report", desc: "A to F score with clear instructions to fix every issue.", icon: "ti-shield-check", delay: 300 },
-            ].map((item) => (
-              <AnimatedSection key={item.step} delay={item.delay}>
-                <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", textAlign: "center", transition: "border-color 0.3s, transform 0.3s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.5)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                  <p style={{ fontSize: "32px", fontWeight: "500", color: "rgba(168,85,247,0.3)", marginBottom: "12px", fontFamily: "monospace" }}>{item.step}</p>
-                  <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: "#a855f7", display: "block", marginBottom: "12px" }}></i>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.title}</p>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section className="section how"><div className="kicker">HOW IT WORKS</div><h2>From your SaaS to <em>“ship it”</em>.</h2><div className="steps">{steps.map(([n,title,text])=><article key={n}><span>{n}</span><h3>{title}</h3><p>{text}</p></article>)}</div></section>
 
-      {/* Features */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Everything Lokky checks for you</h2>
-              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>No jargon — just what it means for your business</p>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "16px" }}>
-            {[
-              { icon: "ti-lock", title: "Is your site encrypted?", desc: "We check that the connection between your visitors and your site is secure. Without it, Chrome displays a red warning.", delay: 0 },
-              { icon: "ti-shield-check", title: "Is your data protected?", desc: "We check that your site blocks the most common attacks that allow hackers to steal your customers' data.", delay: 150 },
-              { icon: "ti-bell", title: "Alerts before expiry", desc: "Get an email 7 days before your SSL certificate expires — you'll never be caught off guard.", delay: 0 },
-              { icon: "ti-book", title: "How to fix it?", desc: "For each issue, Lokky gives you exact steps based on your site type (Shopify, WordPress, Vercel...).", delay: 150 },
-            ].map((item) => (
-              <AnimatedSection key={item.title} delay={item.delay}>
-                <div style={{ display: "flex", gap: "16px", background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", transition: "border-color 0.3s, transform 0.3s" }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.5)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(-4px)"; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"; (e.currentTarget as HTMLDivElement).style.transform = "translateY(0)"; }}>
-                  <i className={`ti ${item.icon}`} style={{ fontSize: "22px", color: "#a855f7", flexShrink: 0, marginTop: "2px" }}></i>
-                  <div>
-                    <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.title}</p>
-                    <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.desc}</p>
-                  </div>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section id="pricing" className="section pricing"><div className="kicker">PRICING</div><h2>Start free.<br /><em>Pay when it matters.</em></h2><p className="copy">Try Lokky without a credit card. Upgrade when your SaaS becomes serious.</p><div className="prices"><article><small>FREE</small><h3>€0</h3><p>For testing Lokky on your first SaaS.</p><ul><li>✓ First scan</li><li>✓ Security score</li><li>✓ Detected issues</li><li>✓ Simplified report</li></ul><Link href="/register">Start for free</Link></article><article className="featured"><small>FOR MAKERS</small><h3>€29 <i>/month</i></h3><p>For makers shipping regularly.</p><ul><li>✓ Recurring scans</li><li>✓ Full scan history</li><li>✓ Security alerts</li><li>✓ Detailed reports</li><li>✓ Lokky Assistant</li></ul><Link href="/register">Ship with confidence →</Link></article><article><small>AGENCY</small><h3>€99 <i>/month</i></h3><p>For teams managing multiple SaaS projects.</p><ul><li>✓ Multiple projects</li><li>✓ Frequent scans</li><li>✓ Exportable reports</li><li>✓ Priority support</li></ul><Link href="/pricing">View Agency plan</Link></article></div></section>
 
-      {/* Pricing */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "800px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff", marginBottom: "12px" }}>Simple pricing</h2>
-              <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)" }}>Start for free — scale as you grow</p>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px" }}>
-            {[
-              { name: "Starter", price: "Free", desc: "To get started", features: ["1 scan/month", "A to F score", "Basic report", "Fix guides"], cta: "Start for free", delay: 0 },
-              { name: "Pro", price: "€9/mo", desc: "For active makers", features: ["20 scans/month", "Auto email alerts", "Full history", "Shareable report"], highlight: true, cta: "Choose Pro", delay: 150 },
-              { name: "Agency", price: "€39/mo", desc: "For pros & agencies", features: ["Unlimited scans", "Daily auto scan", "Exportable reports", "Priority support"], cta: "Choose Agency", delay: 300 },
-            ].map((plan) => (
-              <AnimatedSection key={plan.name} delay={plan.delay}>
-                <div style={{ background: plan.highlight ? "rgba(168,85,247,0.1)" : "#0d0018", border: plan.highlight ? "2px solid #a855f7" : "0.5px solid rgba(168,85,247,0.15)", borderRadius: "12px", padding: "24px", position: "relative", height: "100%" }}>
-                  {plan.highlight && (
-                    <div style={{ position: "absolute", top: "-12px", left: "50%", transform: "translateX(-50%)", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "10px", fontWeight: "700", padding: "3px 12px", borderRadius: "20px", whiteSpace: "nowrap" }}>Most popular</div>
-                  )}
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: plan.highlight ? "#c084fc" : "#fff", marginBottom: "4px" }}>{plan.name}</p>
-                  <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginBottom: "16px" }}>{plan.desc}</p>
-                  <p style={{ fontSize: "26px", fontWeight: "500", color: "#fff", marginBottom: "20px" }}>{plan.price}</p>
-                  <ul style={{ listStyle: "none", display: "flex", flexDirection: "column", gap: "8px", marginBottom: "20px" }}>
-                    {plan.features.map((f) => (
-                      <li key={f} style={{ display: "flex", alignItems: "center", gap: "8px", fontSize: "12px", color: "rgba(255,255,255,0.5)" }}>
-                        <i className="ti ti-check" style={{ fontSize: "12px", color: "#a855f7" }}></i>{f}
-                      </li>
-                    ))}
-                  </ul>
-                  <Link href="/register" style={{ display: "block", textAlign: "center", background: plan.highlight ? "linear-gradient(135deg, #a855f7, #6366f1)" : "transparent", color: "#fff", border: plan.highlight ? "none" : "0.5px solid rgba(168,85,247,0.3)", borderRadius: "6px", padding: "10px", fontSize: "13px", fontWeight: "600", textDecoration: "none" }}>
-                    {plan.cta}
-                  </Link>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
+      <section className="final"><div className="kicker">BEFORE YOU SHIP</div><h2>Your SaaS works.<br /><em>But is it safe?</em></h2><p>Paste your URL and see what you may have forgotten.</p><a href="#top" className="button">Scan my SaaS →</a></section>
+      <footer><Link href="/en" className="lk-logo"><span>◈</span>LOKKY</Link><span>Security for the vibe coding era.</span></footer>
 
-      {/* FAQ */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "100px 40px", position: "relative", zIndex: 1 }}>
-        <div style={{ maxWidth: "600px", margin: "0 auto" }}>
-          <AnimatedSection>
-            <div style={{ textAlign: "center", marginBottom: "56px" }}>
-              <h2 style={{ fontSize: "36px", fontWeight: "500", color: "#fff" }}>FAQ</h2>
-            </div>
-          </AnimatedSection>
-          <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
-            {[
-              { q: "Do I need to be a developer?", a: "Not at all! Lokky is built for creators and entrepreneurs. Everything is explained in plain English, no technical jargon." },
-              { q: "Does Lokky access my website?", a: "No. Lokky only analyzes the public information of your site — what any visitor can already see." },
-              { q: "How long does a scan take?", a: "Between 3 and 10 seconds. You get your report immediately after." },
-              { q: "What if my score is bad?", a: "Lokky gives you exact steps to fix each issue, tailored to your type of site." },
-            ].map((item, i) => (
-              <AnimatedSection key={i} delay={i * 100}>
-                <div style={{ background: "#0d0018", border: "0.5px solid rgba(168,85,247,0.15)", borderRadius: "10px", padding: "20px 24px", transition: "border-color 0.3s" }}
-                  onMouseEnter={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.4)"}
-                  onMouseLeave={e => (e.currentTarget as HTMLDivElement).style.borderColor = "rgba(168,85,247,0.15)"}>
-                  <p style={{ fontSize: "14px", fontWeight: "500", color: "#fff", marginBottom: "8px" }}>{item.q}</p>
-                  <p style={{ fontSize: "12px", color: "rgba(255,255,255,0.4)", lineHeight: "1.7" }}>{item.a}</p>
-                </div>
-              </AnimatedSection>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Final */}
-      <section style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "120px 40px", textAlign: "center", position: "relative", zIndex: 1 }}>
-        <AnimatedSection>
-          <div style={{ maxWidth: "500px", margin: "0 auto" }}>
-            <h2 style={{ fontSize: "40px", fontWeight: "500", color: "#fff", marginBottom: "12px", lineHeight: "1.2" }}>
-              Is your site<br /><span style={{ color: "#a855f7", fontStyle: "italic" }}>really secure?</span>
-            </h2>
-            <p style={{ fontSize: "14px", color: "rgba(255,255,255,0.4)", marginBottom: "32px" }}>
-              Check now for free — results in 5 seconds.
-            </p>
-            <Link href="/register" style={{ display: "inline-flex", alignItems: "center", gap: "8px", background: "linear-gradient(135deg, #a855f7, #6366f1)", color: "#fff", fontSize: "14px", fontWeight: "600", padding: "16px 36px", borderRadius: "8px", textDecoration: "none" }}>
-              <i className="ti ti-search" style={{ fontSize: "15px" }}></i>
-              Scan my site for free
-            </Link>
-            <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)", marginTop: "12px" }}>No credit card • No signup required • 100% free</p>
-          </div>
-        </AnimatedSection>
-      </section>
-
-      {/* Footer */}
-      <footer style={{ borderTop: "0.5px solid rgba(168,85,247,0.15)", padding: "24px 40px", display: "flex", justifyContent: "space-between", alignItems: "center", position: "relative", zIndex: 1 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-          <i className="ti ti-shield-check" style={{ fontSize: "14px", color: "#a855f7" }}></i>
-          <span style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)" }}>LOKKY</span>
-        </div>
-        <p style={{ fontSize: "11px", color: "rgba(255,255,255,0.3)" }}>© 2026 Lokky — Security made simple for makers</p>
-        <Link href="/" style={{ fontSize: "12px", color: "rgba(255,255,255,0.3)", textDecoration: "none" }}>Français</Link>
-      </footer>
-
-      <FloatingReviewEN />
-
-      <style>{`
-        @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(0.8); }
-        }
+      <style jsx global>{`
+        *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#07050b}.lk-page{min-height:100vh;color:#fff;background:radial-gradient(circle at 50% 0%,#1a0d2c,#0b0710 32%,#07050b 70%);font-family:var(--font-geist-sans),Inter,Arial,sans-serif}.lk-nav{height:68px;max-width:1120px;margin:auto;padding:0 24px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid rgba(255,255,255,.07)}.lk-logo{color:#fff;text-decoration:none;font-weight:700;letter-spacing:.14em;font-size:14px;display:flex;gap:9px;align-items:center}.lk-logo span{color:#a855f7;font-size:18px}.lk-nav nav{display:flex;gap:20px;align-items:center}.lk-nav nav a{color:rgba(255,255,255,.58);text-decoration:none;font-size:13px}.lk-nav nav a:hover{color:#fff}.lk-nav .cta,.button{background:#8b5cf6;color:#fff!important;padding:10px 15px;border-radius:8px}.hero{max-width:980px;margin:auto;padding:105px 24px 70px;text-align:center}.badge{display:inline-flex;gap:8px;align-items:center;border:1px solid rgba(168,85,247,.28);background:rgba(168,85,247,.08);color:#c4b5fd;border-radius:999px;padding:7px 13px;font-size:12px;margin-bottom:28px}.badge span{width:6px;height:6px;border-radius:50%;background:#a855f7}.hero h1,.section h2,.final h2{font-size:clamp(40px,6vw,68px);line-height:1.04;letter-spacing:-.045em;font-weight:600;margin:0 0 24px}.hero h1 em,.section h2 em,.final h2 em{font-style:normal;color:#a855f7}.hero>p{max-width:690px;margin:0 auto 40px;color:rgba(255,255,255,.55);font-size:16px;line-height:1.75}.scanner{max-width:620px;margin:auto}.terminal{height:28px;display:flex;align-items:center;gap:6px;padding:0 8px;color:rgba(255,255,255,.28);font:10px ui-monospace;background:#100a18;border:1px solid rgba(168,85,247,.18);border-bottom:0;border-radius:15px 15px 0 0;text-align:left}.terminal i{width:7px;height:7px;border-radius:50%;background:#ef4444}.terminal i:nth-child(2){background:#f59e0b}.terminal i:nth-child(3){background:#22c55e}.terminal span{margin-left:5px}.trust{display:flex;justify-content:center;gap:22px;flex-wrap:wrap;margin-top:18px;color:rgba(255,255,255,.3);font-size:11px}.section{max-width:980px;margin:auto;padding:125px 24px}.kicker{color:#a855f7;font:600 10px ui-monospace;letter-spacing:.16em;margin-bottom:18px}.copy{max-width:650px;color:rgba(255,255,255,.48);font-size:15px;line-height:1.8;margin:0 0 40px}.grid,.steps,.prices{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}.problem{border-top:1px solid rgba(255,255,255,.07)}.grid article,.steps article,.prices article{padding:25px;border:1px solid rgba(255,255,255,.08);background:rgba(255,255,255,.025);border-radius:14px}.icon{font-size:21px;margin-bottom:28px}.grid h3,.steps h3{font-size:15px;margin:0 0 9px}.grid p,.steps p,.prices p{color:rgba(255,255,255,.4);font-size:12px;line-height:1.7;margin:0}.solution{display:grid;grid-template-columns:1fr 1fr;gap:70px;align-items:center;border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)}.solution strong{color:rgba(255,255,255,.8)}.report{background:#0d0913;border:1px solid rgba(168,85,247,.2);border-radius:14px;overflow:hidden}.report header{padding:22px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid rgba(255,255,255,.07)}.report small{display:block;color:#64748b;font:9px ui-monospace}.report header strong{display:block;font-size:28px;margin-top:5px}.report header b{font-size:24px;color:#f59e0b;border:1px solid #f59e0b;border-radius:10px;padding:9px 14px}.report>div{padding:15px 22px;border-bottom:1px solid rgba(255,255,255,.055);font-size:12px;color:#cbd5e1}.report>div span{margin-left:8px}.report>div strong{float:right;color:#a855f7}.report footer{padding:15px 22px;color:#c4b5fd;font-size:10px}.how{text-align:center}.steps{text-align:left;margin-top:45px}.steps article{border-top:1px solid rgba(168,85,247,.35)}.steps article>span,.prices small{font:600 9px ui-monospace;color:#a855f7;letter-spacing:.12em}.steps h3{margin-top:28px}.pricing{border-top:1px solid rgba(255,255,255,.07)}.prices{text-align:left}.prices article{padding:28px}.prices .featured{border-color:rgba(168,85,247,.45);background:linear-gradient(180deg,rgba(139,92,246,.12),rgba(255,255,255,.025))}.prices h3{font-size:38px;letter-spacing:-.04em;margin:16px 0 8px}.prices h3 i{font-size:12px;color:#64748b;font-style:normal;font-weight:400}.prices p{min-height:38px}.prices ul{list-style:none;padding:0;margin:22px 0;display:grid;gap:10px}.prices li{font-size:11px;color:#a1a1aa}.prices a{display:block;text-align:center;text-decoration:none;background:#8b5cf6;color:#fff;padding:11px;border-radius:8px;font-size:11px;font-weight:600}.prices article:not(.featured) a{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.08)}.final{text-align:center;padding:130px 24px;border-top:1px solid rgba(255,255,255,.07)}.final p{color:#71717a;font-size:14px;margin-bottom:28px}.final .button{display:inline-block;text-decoration:none}.lk-page>footer{max-width:1120px;margin:auto;padding:28px 24px;border-top:1px solid rgba(255,255,255,.07);display:flex;justify-content:space-between;color:#52525b;font-size:11px}@media(max-width:800px){.lk-nav nav a:nth-child(1),.lk-nav nav a:nth-child(2){display:none}.hero{padding-top:70px}.grid,.steps,.prices,.solution{grid-template-columns:1fr}.section{padding:85px 20px}.hero h1,.section h2,.final h2{font-size:40px}.solution{gap:35px}}@media(max-width:500px){.lk-nav{padding:0 14px}.lk-nav nav{gap:10px}.lk-nav nav a{font-size:11px}.hero h1,.section h2,.final h2{font-size:34px}.hero>p{font-size:14px}.trust{gap:10px}}
       `}</style>
-    </div>
+    </main>
   );
 }
