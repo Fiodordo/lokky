@@ -1,6 +1,3 @@
 "use client";
-
-import { usePathname } from "next/navigation";
-import { useEffect } from "react";
-
-export default function LocaleInitializer(){const pathname=usePathname();useEffect(()=>{if(pathname==="/"||pathname==="/en"||pathname.startsWith("/en/")){const locale=pathname==="/"?"fr":"en";window.localStorage.setItem("lokky-locale",locale);document.cookie=`lokky-locale=${locale}; path=/; max-age=31536000; samesite=lax`; }},[pathname]);return null}
+import {usePathname,useRouter} from "next/navigation";import{useEffect}from"react";
+export default function LocaleInitializer(){const pathname=usePathname(),router=useRouter();useEffect(()=>{const saved=localStorage.getItem("lokky-locale");if(pathname==="/"&&!saved){const browser=navigator.language.toLowerCase();const locale=browser.startsWith("fr")?"fr":browser.startsWith("en")?"en":"en";localStorage.setItem("lokky-locale",locale);document.cookie=`lokky-locale=${locale}; path=/; max-age=31536000; samesite=lax`;if(locale==="en")router.replace("/en");return}if(pathname==="/"||pathname==="/en"||pathname.startsWith("/en/")){const locale=pathname==="/"?"fr":"en";localStorage.setItem("lokky-locale",locale);document.cookie=`lokky-locale=${locale}; path=/; max-age=31536000; samesite=lax`}},[pathname,router]);return null}
