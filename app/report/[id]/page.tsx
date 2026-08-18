@@ -1,4 +1,6 @@
-import { createClient } from "@supabase/supabase-js";
+import { createServerClient } from "@supabase/ssr";
+import { cookies } from "next/headers";
+import { redirect } from "next/navigation";
 import Link from "next/link";
 import SecurityAssistant from "@/components/SecurityAssistant";
 
@@ -12,8 +14,18 @@ const scoreStyle = (s: string) => s === "A" || s === "B" ? { color: "#00d4aa", b
 
 export default async function ReportPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const supabase = createClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-  const { data: scan } = await supabase.from("scans").select("*").eq("id", id).single();
+  const cookieStore = await cookies();
+  const supabase = createServerClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+    cookies: {
+      getAll() { return cookieStore.getAll(); },
+      setAll(cookiesToSet) { try { cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options)); } catch {} },
+    },
+  });
+
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) redirect(`/login?next=/report/${id}`);
+
+  const { data: scan } = await supabase.from("scans").select("*").eq("id", id).eq("user_id", user.id).single();
   if (!scan) return <div style={{ minHeight:"100vh",display:"grid",placeItems:"center",background:"#07050b",color:"#fff" }}><div style={{textAlign:"center"}}><p>Rapport introuvable</p><Link href="/dashboard" style={{color:"#a855f7"}}>← Retour au dashboard</Link></div></div>;
 
   const headers = (scan.security_headers || {}) as Record<string, boolean>;
@@ -30,15 +42,10 @@ export default async function ReportPage({ params }: { params: Promise<{ id: str
     <header><Link href="/dashboard" className="logo"><span>◈</span> LOKKY</Link><Link href="/dashboard/scanner" className="cta">Scanner un autre SaaS →</Link></header>
     <div className="report-wrap">
       <div className="report-top"><div><span className="eyebrow">RAPPORT DE SÉCURITÉ</span><h1>{scan.domain}</h1><p>Scanné le {new Date(scan.created_at).toLocaleDateString("fr-FR", { day:"numeric", month:"long", year:"numeric" })}</p></div><div className="score" style={{color:score.color,background:score.bg}}><b>{scan.score}</b><span>score</span></div></div>
-
       <section className={`verdict ${failed.length ? "danger" : "good"}`}><div className="verdict-icon">{failed.length ? "!" : "✓"}</div><div><b>{failed.length ? `${failed.length} point${failed.length > 1 ? "s" : ""} mérite${failed.length > 1 ? "nt" : ""} ton attention` : "Ton SaaS passe les vérifications visibles"}</b><p>{failed.length ? "Pas besoin de comprendre la cybersécurité. Commence par demander à Lokky quoi faire, puis re-scanne après ta correction." : "Aucun problème visible n'a été détecté par ce scan."}</p></div></section>
-
       {failed.length > 0 && <section className="issues-summary"><div className="issues-heading"><div><span className="eyebrow">À TRAITER EN PRIORITÉ</span><h2>Ce qui mérite ton attention</h2></div><span>{failed.length} problème{failed.length > 1 ? "s" : ""}</span></div><div className="issue-chips">{failed.slice(0,4).map((item,i)=><div className="issue-chip" key={item.label}><span>{String(i + 1).padStart(2,"0")}</span><strong>{item.label}</strong></div>)}</div></section>}
-
       <SecurityAssistant domain={scan.domain} score={scan.score} issues={assistantIssues} />
-
       <section className="checks"><div className="section-head"><div><span className="eyebrow">VÉRIFICATION</span><h2>Les checks du scan</h2></div><span>{checks.filter(c=>c.ok).length}/{checks.length} OK</span></div>{checks.map(item=><div className="check" key={item.label}><span className="check-icon">{item.ok ? "✓" : "!"}</span><div><b>{item.label}</b><p>{item.ok ? "Vérification réussie." : "Ce point mérite une correction ou une vérification dans ton code."}</p></div><strong className={item.ok ? "ok" : "bad"}>{item.ok ? "OK" : "À revoir"}</strong></div>)}</section>
-
       <section className="next"><span className="eyebrow">APRÈS LA CORRECTION</span><h2>Corrige. Puis re-scanne.</h2><p>Le but n'est pas d'obtenir un joli score. Le but est de vérifier que le risque que Lokky a détecté a réellement disparu.</p><Link href="/dashboard/scanner" className="cta">Re-scanner mon SaaS →</Link></section>
     </div>
     <footer><Link href="/dashboard">LOKKY</Link><span>Security for the vibe coding era.</span></footer>
